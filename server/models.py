@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from .exts import db
+from exts import db
 
 # User Table
 class User(db.Model):
@@ -37,6 +37,23 @@ class Medication(db.Model):
     stock_quantity = db.Column(db.Integer, nullable=False)
     orders = relationship('Order', backref='medication', lazy=True)
 
+    def __repr__(self):
+        return f"<Medication('{self.name}', '{self.price}')>"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, name, description, price, stock_quantity):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.stock_quantity = stock_quantity
+
 # Order Table
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -47,6 +64,23 @@ class Order(db.Model):
     total_price = db.Column(db.Float, nullable=False)
     order_date = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Confirmed, Delivered
+
+    def __repr__(self):
+        return f"<Order('{self.user_id}', '{self.medication_id}', '{self.total_price}')>"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, quantity, total_price, order_date, status):
+        self.quantity = quantity
+        self.total_price = total_price
+        self.order_date = order_date
+        self.status = status
 
 # Statement Table
 class Statement(db.Model):
