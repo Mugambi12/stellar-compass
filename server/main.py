@@ -70,6 +70,7 @@ class MedicationResource(Resource):
         medications = Medication.query.all()
         return jsonify(medications)
 
+
 @api.route('/medications/<int:id>')
 class MedicationResource(Resource):
     def get(self, id):
