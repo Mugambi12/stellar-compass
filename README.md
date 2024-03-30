@@ -1,4 +1,4 @@
-# Water Management System
+# Stellar Compass
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/mugambi12/stellar-compass?color=blueviolet)
 ![Number of lines of code](https://img.shields.io/tokei/lines/github/mugambi12/stellar-compass?color=blueviolet)
