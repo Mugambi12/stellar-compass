@@ -1,3 +1,5 @@
+# Path: server/models.py
+
 from sqlalchemy.orm import relationship
 from exts import db
 

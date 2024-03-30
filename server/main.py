@@ -1,3 +1,5 @@
+# Path: server/main.py
+
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from config import DevelopmentConfig
@@ -31,26 +33,26 @@ medication_model = api.model(
 )
 
 
-@api.route('/hello')
-class HelloResource(Resource):
-    def get(self):
-        return {"message": "Hello world"}
-
-
 @api.route('/users')
 class UserResource(Resource):
     @api.expect(user_model)
+    @api.marshal_with(user_model)
     def post(self):
         """Create a new user"""
-        data = request.json
-        new_user = User(**data)
+        data = request.get_json()
+        new_user = User(
+            username=data.get('username'),
+            email=data.get('email'),
+            password=data.get('password')
+        )
         new_user.save()
         return {"message": "User created successfully"}
 
+    @api.marshal_with(user_model)
     def get(self):
         """Get all users"""
         users = User.query.all()
-        return jsonify(users)
+        return users
 
 
 @api.route('/medications')
@@ -103,4 +105,6 @@ def make_shell_context():
     }
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run()

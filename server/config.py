@@ -1,3 +1,5 @@
+# Path: server/config.py
+
 from decouple import config
 import os
 
