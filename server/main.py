@@ -16,19 +16,35 @@ api=Api(app, doc='/docs')
 # Model for User Serializer
 user_model = api.model(
     'User', {
+        'id': fields.Integer,
         'username': fields.String,
         'email': fields.String,
-        'password': fields.String
+        'password': fields.String,
+        'name': fields.String,
+        'address': fields.String,
+        'contact_info': fields.String,
+        'role': fields.String,
+        'is_active': fields.Boolean,
+        'deleted': fields.Boolean,
+        'created_at': fields.DateTime,
+        'updated_at': fields.DateTime
     }
 )
 
 # Model for Medication Serializer
 medication_model = api.model(
     'Medication', {
+        'id': fields.Integer,
         'name': fields.String,
         'description': fields.String,
+        'dosage': fields.String,
+        'manufacturer': fields.String,
+        'expiry_date': fields.Date,
+        'category': fields.String,
         'price': fields.Float,
-        'stock_quantity': fields.Integer
+        'stock_quantity': fields.Integer,
+        'created_at': fields.DateTime,
+        'updated_at': fields.DateTime
     }
 )
 
@@ -40,19 +56,40 @@ class UserResource(Resource):
     def post(self):
         """Create a new user"""
         data = request.get_json()
-        new_user = User(
-            username=data.get('username'),
-            email=data.get('email'),
-            password=data.get('password')
-        )
+        new_user = User(**data)
         new_user.save()
-        return {"message": "User created successfully"}
+        return new_user, 201
 
     @api.marshal_with(user_model)
     def get(self):
         """Get all users"""
         users = User.query.all()
-        return users
+        return users, 200
+
+@api.route('/users/<int:id>')
+class MedicationResource(Resource):
+
+    @api.marshal_with(user_model)
+    def get(self, id):
+        """Get a users by id"""
+        user = User.query.get_or_404(id)
+        return user, 200
+
+    @api.marshal_with(user_model)
+    def put(self, id):
+        """Update a users by id"""
+        user_to_update = User.query.get_or_404(id)
+        data = request.get_json()
+        user_to_update.update(**data)
+
+        return user_to_update, 200
+
+    @api.marshal_with(user_model)
+    def delete(self, id):
+        """Delete a users by id"""
+        user_to_delete = User.query.get_or_404(id)
+        user_to_delete.delete()
+        return user_to_delete, 200
 
 
 @api.route('/medications')
