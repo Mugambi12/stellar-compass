@@ -69,6 +69,33 @@ class Medication(db.Model):
             setattr(self, key, value)
         db.session.commit()
 
+class Prescription(db.Model):
+    __tablename__ = 'prescriptions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
+    dosage = db.Column(db.String(50), nullable=True)
+    frequency = db.Column(db.String(50), nullable=True)
+    start_date = db.Column(db.Date, nullable=True)
+    end_date = db.Column(db.Date, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        db.session.commit()
+
 class Order(db.Model):
     __tablename__ = 'orders'
 
@@ -78,7 +105,12 @@ class Order(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
-    delivery_details = db.Column(db.Text, nullable=True)
+    to_be_delivered = db.Column(db.Boolean, nullable=False, default=True)
+    delivery_address = db.Column(db.Text, nullable=True)
+    delivery_status = db.Column(db.String(20), nullable=False, default='Pending')  # Dispatched, In Transit, Delivered
+    delivery_date = db.Column(db.DateTime, nullable=True)
+    payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
+    is_online_order = db.Column(db.Boolean, nullable=False, default=True)  # Indicates whether the order was placed online
     transaction_id = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Confirmed, Delivered
     deleted = db.Column(db.Boolean, nullable=False, default=False)
