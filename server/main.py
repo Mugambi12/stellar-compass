@@ -1,15 +1,19 @@
 # Path: server/main.py
 
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restx import Api, Resource, fields
 from config import DevelopmentConfig
 from exts import db
 from models import User, Medication, Order, Statement
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 db.init_app(app)
+
+Migrate = Migrate(app, db)
 
 api=Api(app, doc='/docs')
 
