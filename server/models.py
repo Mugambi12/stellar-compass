@@ -29,6 +29,7 @@ class User(db.Model):
 
     def delete(self):
         self.deleted = True
+        #db.session.delete(self)
         db.session.commit()
 
     def update(self, **kwargs):
@@ -60,6 +61,7 @@ class Medication(db.Model):
 
     def delete(self):
         self.deleted = True
+        #db.session.delete(self)
         db.session.commit()
 
     def update(self, **kwargs):
@@ -89,6 +91,7 @@ class Order(db.Model):
 
     def delete(self):
         self.deleted = True
+        #db.session.delete(self)
         db.session.commit()
 
     def update(self, **kwargs):
@@ -116,6 +119,7 @@ class Statement(db.Model):
 
     def delete(self):
         self.deleted = True
+        #db.session.delete(self)
         db.session.commit()
 
     def update(self, **kwargs):
