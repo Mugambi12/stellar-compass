@@ -6,6 +6,7 @@ from config import DevelopmentConfig
 from exts import db
 from models import User, Medication, Order, Statement
 from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
@@ -52,6 +53,51 @@ medication_model = api.model(
         'updated_at': fields.DateTime
     }
 )
+
+# Model for Signup Serializer
+signup_model = api.model(
+    'Signup', {
+        'username': fields.String,
+        'email': fields.String,
+        'password': fields.String,
+        'address': fields.String,
+        'contact_info': fields.String,
+        'role': fields.String
+    }
+)
+
+@api.route('/signup')
+class SignupResource(Resource):
+
+    @api.marshal_with(user_model)
+    @api.expect(signup_model)
+    def post(self):
+        """Create a new user"""
+        data = request.get_json()
+
+        password_hash = generate_password_hash(data['password'])
+        data['password'] = password_hash
+
+        new_user = User(**data)
+        new_user.save()
+        return new_user, 201
+
+@api.route('/login')
+class LoginResource(Resource):
+
+    @api.marshal_with(user_model)
+    def post(self):
+        """Login a user"""
+        data = request.get_json()
+        user = User.query.filter_by(username=data['username']).first()
+        if user:
+            if user.password == data['password']:
+                return user, 200
+            else:
+                return {'message': 'Invalid password'}, 400
+        else:
+            return {'message': 'User not found'}, 404
+
 
 
 @api.route('/users')
@@ -108,6 +154,7 @@ class MedicationResource(Resource):
         return medications, 200
 
     @api.marshal_with(medication_model)
+    @api.expect(medication_model)
     def post(self):
         """Create a new medication"""
         data = request.get_json()
