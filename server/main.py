@@ -1,21 +1,21 @@
 # Path: server/main.py
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from config import DevelopmentConfig
 from exts import db
 from models import User, Medication, Order, Statement
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 db.init_app(app)
-
 Migrate = Migrate(app, db)
-
+JWTManager(app)
 api=Api(app, doc='/docs')
 
 # Model for User Serializer
@@ -66,37 +66,52 @@ signup_model = api.model(
     }
 )
 
+# Model for Login Serializer
+login_model = api.model(
+    'Login', {
+        'username': fields.String,
+        'password': fields.String
+    }
+)
+
+
 @api.route('/signup')
 class SignupResource(Resource):
 
-    @api.marshal_with(user_model)
     @api.expect(signup_model)
     def post(self):
         """Create a new user"""
         data = request.get_json()
+
+        username_exists = User.query.filter_by(username=data['username'], email=data['email']).first()
+        if username_exists:
+            return jsonify({"message": f"Username {data['username']} already exists"})
 
         password_hash = generate_password_hash(data['password'])
         data['password'] = password_hash
 
         new_user = User(**data)
         new_user.save()
-        return new_user, 201
+        return jsonify({"message": "User created successfully"})
 
 @api.route('/login')
 class LoginResource(Resource):
 
-    @api.marshal_with(user_model)
+    @api.expect(login_model)
     def post(self):
         """Login a user"""
         data = request.get_json()
-        user = User.query.filter_by(username=data['username']).first()
-        if user:
-            if user.password == data['password']:
-                return user, 200
-            else:
-                return {'message': 'Invalid password'}, 400
-        else:
-            return {'message': 'User not found'}, 404
+
+        username_exists = User.query.filter_by(username=data['username']).first()
+
+        if username_exists and check_password_hash(username_exists.password, data['password']):
+            access_token = create_access_token(identity=username_exists.username)
+            refresh_token = create_refresh_token(identity=username_exists.username)
+            return jsonify({
+                'message': 'Login successful',
+                'access_token': access_token,
+                'refresh_token': refresh_token
+            })
 
 
 
@@ -155,6 +170,7 @@ class MedicationResource(Resource):
 
     @api.marshal_with(medication_model)
     @api.expect(medication_model)
+    @jwt_required()
     def post(self):
         """Create a new medication"""
         data = request.get_json()
@@ -173,6 +189,7 @@ class MedicationResource(Resource):
         return medication, 200
 
     @api.marshal_with(medication_model)
+    @jwt_required()
     def put(self, id):
         """Update a medication by id"""
         medication_to_update = Medication.query.get_or_404(id)
@@ -182,6 +199,7 @@ class MedicationResource(Resource):
         return medication_to_update, 200
 
     @api.marshal_with(medication_model)
+    @jwt_required()
     def delete(self, id):
         """Delete a medication by id"""
         medication_to_delete = Medication.query.get_or_404(id)
