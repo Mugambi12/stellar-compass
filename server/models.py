@@ -20,6 +20,9 @@ class User(db.Model):
     orders = relationship('Order', backref='user', lazy=True)
     statements = relationship('Statement', backref='user', lazy=True)
 
+    def __repr__(self):
+        return f"<User {self.username}>"
+
     def save(self):
         db.session.add(self)
         db.session.commit()
