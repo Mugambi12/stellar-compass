@@ -112,7 +112,7 @@ class Order(db.Model):
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     is_online_order = db.Column(db.Boolean, nullable=False, default=True)  # Indicates whether the order was placed online
     transaction_id = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Confirmed, Delivered
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Completed, Cancelled
     deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())

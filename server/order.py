@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields
-from models import Order, Medication, User, Prescription
+from models import Order, Medication
 from flask_jwt_extended import jwt_required
 
+# Initialize Flask-RESTx Namespace
 order_ns = Namespace('orders', description='Order Operations')
 
 # Model for Order Serializer
@@ -13,12 +14,22 @@ order_model = order_ns.model(
         'medication_id': fields.Integer,
         'quantity': fields.Integer,
         'total_price': fields.Float,
-        'order_status': fields.String,
+        'payment_method': fields.String,
+        'to_be_delivered': fields.Boolean,
+        'delivery_address': fields.String,
+        'delivery_status': fields.String,
+        'delivery_date': fields.DateTime,
+        'payment_status': fields.String,
+        'is_online_order': fields.Boolean,
+        'transaction_id': fields.String,
+        'status': fields.String,
+        'deleted': fields.Boolean,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
     }
 )
 
+# Resource for handling orders
 @order_ns.route('/orders')
 class OrderResource(Resource):
 
@@ -42,23 +53,9 @@ class OrderResource(Resource):
         if medication.stock_quantity < quantity:
             return jsonify({'message': 'Insufficient stock'})
 
-        ## Create prescription
-        #prescription = Prescription(
-        #    user_id=user_id,
-        #    medication_id=medication_id,
-        #    quantity=quantity
-        #)
-        #prescription.save()
-
         # Create order
         total_price = quantity * medication.price
-        new_order = Order(
-            user_id=user_id,
-            medication_id=medication_id,
-            quantity=quantity,
-            total_price=total_price,
-            status='Pending'
-        )
+        new_order = Order(**data, total_price=total_price)
         new_order.save()
 
         # Update medication stock
@@ -67,8 +64,9 @@ class OrderResource(Resource):
 
         return jsonify({'message': 'Order placed successfully'})
 
+# Resource for handling individual orders
 @order_ns.route('/orders/<int:id>')
-class OrderResource(Resource):
+class OrderDetailResource(Resource):
 
     @order_ns.marshal_with(order_model)
     def get(self, id):
@@ -80,15 +78,38 @@ class OrderResource(Resource):
     @jwt_required()
     def put(self, id):
         """Update an order by id"""
-        order_to_update = Order.query.get_or_404(id)
         data = request.get_json()
-        order_to_update.update(**data)
-        return order_to_update, 200
+        user_id = data.get('user_id')
+        medication_id = data.get('medication_id')
+        quantity = data.get('quantity')
 
-    @order_ns.marshal_with(order_model)
+        order_to_update = Order.query.get_or_404(id)
+
+        # Check medication availability
+        medication = Medication.query.get_or_404(medication_id)
+        if medication.stock_quantity < quantity:
+            return jsonify({'message': 'Insufficient stock'})
+
+        total_price = quantity * medication.price
+        order_to_update.update(**data, total_price=total_price)
+
+        if order_to_update.quantity != quantity:
+            # Update medication stock
+            medication.stock_quantity += order_to_update.quantity
+            medication.stock_quantity -= quantity
+            medication.save()
+
+        return jsonify({'message': 'Order updated successfully'})
+
     @jwt_required()
     def delete(self, id):
         """Delete an order by id"""
         order_to_delete = Order.query.get_or_404(id)
         order_to_delete.delete()
-        return None, 204
+
+        # Update medication stock
+        medication = Medication.query.get_or_404(id)
+        quantity = order_to_delete.quantity
+        medication.stock_quantity += quantity
+        medication.save()
+        return jsonify({'message': 'Order deleted successfully'})
