@@ -9,7 +9,8 @@ from flask_jwt_extended import JWTManager
 from auth import auth_ns
 from users import user_ns
 from medications import medicine_ns
-from order import order_ns, sale_ns, invoice_ns, payment_ns
+from order import order_ns, invoice_ns, payment_ns
+from sales import sale_ns
 
 
 
