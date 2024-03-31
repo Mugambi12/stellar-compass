@@ -65,33 +65,23 @@ class Order(db.Model, BaseMixin):
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
-    sold = db.Column(db.Boolean, nullable=False, default=False)
 
     sales = relationship('Sale', backref='customer_order', lazy=True)
     invoices = relationship('Invoice', backref='customer_order', lazy=True)
 
 
-class Sale(db.Model, BaseMixin):
-    __tablename__ = 'sales'
+class SaleInvoice(db.Model, BaseMixin):
+    __tablename__ = 'sale_invoices'
 
     customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
-
-    invoices = relationship('Invoice', backref='sale', lazy=True)
-
-
-class Invoice(db.Model, BaseMixin):
-    __tablename__ = 'invoices'
-
-    sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
-    customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Overdue
+    active_sale = db.Column(db.Boolean, nullable=False, default=False)
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
     due_date = db.Column(db.Date, nullable=True)
 
-    payments = relationship('Payment', backref='invoice', lazy=True)
+    invoices = relationship('Invoice', backref='sale', lazy=True)
 
 
 class Payment(db.Model, BaseMixin):

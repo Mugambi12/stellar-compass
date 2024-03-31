@@ -10,8 +10,7 @@ from auth import auth_ns
 from users import user_ns
 from medications import medicine_ns
 from order import order_ns
-from sales import sale_ns
-from invoices import invoice_ns
+from sales import sale_invoice_ns
 from payments import payment_ns
 
 
@@ -29,8 +28,7 @@ def create_app(config):
     api.add_namespace(user_ns)
     api.add_namespace(medicine_ns)
     api.add_namespace(order_ns)
-    api.add_namespace(sale_ns)
-    api.add_namespace(invoice_ns)
+    api.add_namespace(sale_invoice_ns)
     api.add_namespace(payment_ns)
 
     @app.shell_context_processor
@@ -40,8 +38,7 @@ def create_app(config):
             'User': User,
             'Medication': Medication,
             'Order': Order,
-            'Sale': Sale,
-            'Invoice': Invoice,
+            'SaleInvoice': SaleInvoice,
             'Payment': Payment
         }
 

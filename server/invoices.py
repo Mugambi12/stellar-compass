@@ -48,7 +48,7 @@ class InvoiceResource(Resource):
             abort(500, message=str(e))
 
 # Resource for handling individual invoices
-@invoice_ns.route('/invoices/<int:id>')
+@invoice_ns.route('/invoice/<int:id>')
 class InvoiceDetailResource(Resource):
 
     @invoice_ns.marshal_with(invoice_model)
