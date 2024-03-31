@@ -66,8 +66,7 @@ class Order(db.Model, BaseMixin):
     order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
 
-    sales = relationship('Sale', backref='customer_order', lazy=True)
-    invoices = relationship('Invoice', backref='customer_order', lazy=True)
+    sale_invoices = relationship('SaleInvoice', backref='customer_order', lazy=True)
 
 
 class SaleInvoice(db.Model, BaseMixin):
@@ -78,17 +77,19 @@ class SaleInvoice(db.Model, BaseMixin):
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     active_sale = db.Column(db.Boolean, nullable=False, default=False)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
     due_date = db.Column(db.Date, nullable=True)
 
-    invoices = relationship('Invoice', backref='sale', lazy=True)
+    # Define the relationship with payments
+    payments = relationship('Payment', backref='sale_invoice', lazy=True)
 
 
 class Payment(db.Model, BaseMixin):
     __tablename__ = 'payments'
 
-    invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=False)
+    invoice_id = db.Column(db.Integer, db.ForeignKey('sale_invoices.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
+
