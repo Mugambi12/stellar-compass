@@ -3,6 +3,7 @@ from exts import db
 
 class BaseMixin:
     id = db.Column(db.Integer, primary_key=True)
+    deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
@@ -32,7 +33,6 @@ class User(db.Model, BaseMixin):
     contact_info = db.Column(db.String(100), nullable=True)
     role = db.Column(db.String(20), nullable=True)  # Example: admin, customer
     is_active = db.Column(db.Boolean, nullable=False, default=True)
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     orders = relationship('Order', backref='user', lazy=True)
 
@@ -51,7 +51,6 @@ class Medication(db.Model, BaseMixin):
     category = db.Column(db.String(50), nullable=True)
     price = db.Column(db.Float, nullable=False)
     stock_quantity = db.Column(db.Integer, nullable=False)
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     orders = relationship('Order', backref='medication', lazy=True)
 
@@ -64,10 +63,9 @@ class Order(db.Model, BaseMixin):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
-    order_type = db.Column(db.String(20), nullable=False, default='Shipping')  # Shipping or Pickup
-    transaction_id = db.Column(db.String(100), nullable=True)
+    order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
+    sold = db.Column(db.Boolean, nullable=False, default=False)
 
     sales = relationship('Sale', backref='customer_order', lazy=True)
     invoices = relationship('Invoice', backref='customer_order', lazy=True)
@@ -80,7 +78,6 @@ class Sale(db.Model, BaseMixin):
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     invoices = relationship('Invoice', backref='sale', lazy=True)
 
@@ -93,7 +90,6 @@ class Invoice(db.Model, BaseMixin):
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Overdue
     due_date = db.Column(db.Date, nullable=True)
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     payments = relationship('Payment', backref='invoice', lazy=True)
 
@@ -106,4 +102,3 @@ class Payment(db.Model, BaseMixin):
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
-    deleted = db.Column(db.Boolean, nullable=False, default=False)
