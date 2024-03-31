@@ -12,12 +12,14 @@ from views.medications import medicine_ns
 from views.order import order_ns
 from views.sale_invoices import sale_invoice_ns
 from views.payments import payment_ns
-
+from flask_cors import CORS
 
 
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(config)
+
+    CORS(app)
 
     db.init_app(app)
     migrate = Migrate(app, db)
