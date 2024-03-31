@@ -32,7 +32,6 @@ class MedicationResource(Resource):
         medications = Medication.query.all()
         return medications, 200
 
-    @medicine_ns.marshal_with(medication_model)
     @medicine_ns.expect(medication_model)
     @jwt_required()
     def post(self):
@@ -40,11 +39,11 @@ class MedicationResource(Resource):
         data = request.get_json()
         new_medication = Medication(**data)
         new_medication.save()
-        return new_medication, 201
+        return jsonify({"message": "Medication created successfully"})
 
 
 @medicine_ns.route('/medications/<int:id>')
-class MedicationResource(Resource):
+class MedicationResourceByID(Resource):
 
     @medicine_ns.marshal_with(medication_model)
     def get(self, id):
@@ -52,7 +51,7 @@ class MedicationResource(Resource):
         medication = Medication.query.get_or_404(id)
         return medication, 200
 
-    @medicine_ns.marshal_with(medication_model)
+    @medicine_ns.expect(medication_model)
     @jwt_required()
     def put(self, id):
         """Update a medication by id"""
@@ -60,12 +59,12 @@ class MedicationResource(Resource):
         data = request.get_json()
         medication_to_update.update(**data)
 
-        return medication_to_update, 200
+        return jsonify({"message": "Medication updated successfully"})
 
-    @medicine_ns.marshal_with(medication_model)
+    @medicine_ns.expect(medication_model)
     @jwt_required()
     def delete(self, id):
         """Delete a medication by id"""
         medication_to_delete = Medication.query.get_or_404(id)
         medication_to_delete.delete()
-        return medication_to_delete, 200
+        return jsonify({"message": "Medication deleted successfully"})

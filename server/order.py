@@ -20,7 +20,7 @@ order_model = order_ns.model(
         'delivery_status': fields.String,
         'delivery_date': fields.DateTime,
         'payment_status': fields.String,
-        'is_online_order': fields.Boolean,
+        'order_type': fields.Boolean,
         'transaction_id': fields.String,
         'status': fields.String,
         'deleted': fields.Boolean,

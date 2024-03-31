@@ -3,7 +3,7 @@
 from flask import Flask
 from flask_restx import Api
 from exts import db
-from models import User, Medication, Order, Statement
+from models import *
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from auth import auth_ns
@@ -33,7 +33,9 @@ def create_app(config):
             'User': User,
             'Medication': Medication,
             'Order': Order,
-            'Statement': Statement
+            'Sale': Sale,
+            'Invoice': Invoice,
+            'Payment': Payment
         }
 
     return app

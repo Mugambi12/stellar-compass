@@ -1,10 +1,29 @@
 from sqlalchemy.orm import relationship
 from exts import db
 
-class User(db.Model):
+class BaseMixin:
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        #self.deleted = True
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, **kwargs):
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+        db.session.commit()
+
+
+class User(db.Model, BaseMixin):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
@@ -14,33 +33,16 @@ class User(db.Model):
     role = db.Column(db.String(20), nullable=True)  # Example: admin, customer
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     deleted = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     orders = relationship('Order', backref='user', lazy=True)
-    statements = relationship('Statement', backref='user', lazy=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
 
-    def delete(self):
-        #self.deleted = True
-        db.session.delete(self)
-        db.session.commit()
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        db.session.commit()
-
-class Medication(db.Model):
+class Medication(db.Model, BaseMixin):
     __tablename__ = 'medications'
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     dosage = db.Column(db.String(50), nullable=True)
@@ -50,111 +52,58 @@ class Medication(db.Model):
     price = db.Column(db.Float, nullable=False)
     stock_quantity = db.Column(db.Integer, nullable=False)
     deleted = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     orders = relationship('Order', backref='medication', lazy=True)
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
 
-    def delete(self):
-        #self.deleted = True
-        db.session.delete(self)
-        db.session.commit()
+class Order(db.Model, BaseMixin):
+    __tablename__ = 'customer_orders'
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        db.session.commit()
-
-class Prescription(db.Model):
-    __tablename__ = 'prescriptions'
-
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
-    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
-    dosage = db.Column(db.String(50), nullable=True)
-    frequency = db.Column(db.String(50), nullable=True)
-    start_date = db.Column(db.Date, nullable=True)
-    end_date = db.Column(db.Date, nullable=True)
-    notes = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        db.session.commit()
-
-class Order(db.Model):
-    __tablename__ = 'orders'
-
-    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-    payment_method = db.Column(db.String(50), nullable=True)
-    to_be_delivered = db.Column(db.Boolean, nullable=False, default=True)
-    delivery_address = db.Column(db.Text, nullable=True)
-    delivery_status = db.Column(db.String(20), nullable=False, default='Pending')  # Dispatched, In Transit, Delivered
-    delivery_date = db.Column(db.DateTime, nullable=True)
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
-    is_online_order = db.Column(db.Boolean, nullable=False, default=True)  # Indicates whether the order was placed online
+    order_type = db.Column(db.String(20), nullable=False, default='Shipping')  # Shipping or Pickup
     transaction_id = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending, Completed, Cancelled
+    status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
     deleted = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
+    sales = relationship('Sale', backref='customer_order', lazy=True)
+    invoices = relationship('Invoice', backref='customer_order', lazy=True)
 
-    def delete(self):
-        #self.deleted = True
-        db.session.delete(self)
-        db.session.commit()
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        db.session.commit()
+class Sale(db.Model, BaseMixin):
+    __tablename__ = 'sales'
 
-class Statement(db.Model):
-    __tablename__ = 'statements'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    transaction_type = db.Column(db.String(20), nullable=True)  # Example: Payment, Refund
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     deleted = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
+    invoices = relationship('Invoice', backref='sale', lazy=True)
 
-    def delete(self):
-        #self.deleted = True
-        db.session.delete(self)
-        db.session.commit()
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        db.session.commit()
+class Invoice(db.Model, BaseMixin):
+    __tablename__ = 'invoices'
+
+    sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
+    customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Overdue
+    due_date = db.Column(db.Date, nullable=True)
+    deleted = db.Column(db.Boolean, nullable=False, default=False)
+
+    payments = relationship('Payment', backref='invoice', lazy=True)
+
+
+class Payment(db.Model, BaseMixin):
+    __tablename__ = 'payments'
+
+    invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    payment_method = db.Column(db.String(50), nullable=True)
+    transaction_id = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
+    deleted = db.Column(db.Boolean, nullable=False, default=False)
