@@ -6,12 +6,12 @@ from exts import db
 from models import *
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from auth import auth_ns
-from users import user_ns
-from medications import medicine_ns
-from order import order_ns
-from sale_invoices import sale_invoice_ns
-from payments import payment_ns
+from views.auth import auth_ns
+from views.users import user_ns
+from views.medications import medicine_ns
+from views.order import order_ns
+from views.sale_invoices import sale_invoice_ns
+from views.payments import payment_ns
 
 
 
