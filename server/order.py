@@ -55,6 +55,10 @@ class OrderResource(Resource):
             new_order = Order(**data, total_price=total_price)
             new_order.save()
 
+            # Create corresponding sale
+            new_sale = Sale(customer_order_id=new_order.id, amount=new_order.total_price)
+            new_sale.save()
+
             # Update medication stock
             medication.stock_quantity -= quantity
             medication.save()
@@ -63,6 +67,7 @@ class OrderResource(Resource):
         except Exception as e:
             db.session.rollback()
             abort(500, message=str(e))
+
 
 # Resource for handling individual orders
 @order_ns.route('/order/<int:id>')
@@ -102,6 +107,12 @@ class OrderDetailResource(Resource):
             # Update order
             order_to_update.update(**data, total_price=total_price)
 
+            # Update corresponding sale
+            sale = Sale.query.filter_by(customer_order_id=order_to_update.id).first()
+            if sale:
+                sale.amount = total_price
+                sale.save()
+
             return jsonify({'message': 'Order updated successfully'})
         except Exception as e:
             db.session.rollback()
@@ -116,7 +127,13 @@ class OrderDetailResource(Resource):
 
             # Update medication stock
             medication = Medication.query.get_or_404(order_to_delete.medication_id)
-            medication.stock_quantity(quantity)
+            medication.stock_quantity += quantity
+            medication.save()
+
+            # Delete corresponding sale
+            sale_to_delete = Sale.query.filter_by(customer_order_id=order_to_delete.id).first()
+            if sale_to_delete:
+                sale_to_delete.delete()
 
             # Delete order
             order_to_delete.delete()
@@ -126,92 +143,6 @@ class OrderDetailResource(Resource):
             db.session.rollback()
             abort(500, message=str(e))
 
-
-# Initialize Flask-RESTx Namespace for Sales
-sale_ns = Namespace('sales', description='Sale Operations')
-
-# Model for Sale Serializer
-sale_model = sale_ns.model(
-    'Sale', {
-        'id': fields.Integer,
-        'customer_order_id': fields.Integer,
-        'amount': fields.Float,
-        'payment_method': fields.String,
-        'transaction_id': fields.String,
-        'deleted': fields.Boolean,
-        'created_at': fields.DateTime,
-        'updated_at': fields.DateTime,
-    }
-)
-
-# Resource for handling sales
-@sale_ns.route('/sales')
-class SaleResource(Resource):
-
-    @sale_ns.marshal_list_with(sale_model)
-    def get(self):
-        """Get all sales"""
-        sales = Sale.query.all()
-        return sales, 200
-
-    @sale_ns.expect(sale_model)
-    @jwt_required()
-    def post(self):
-        """Create a new sale"""
-        try:
-            data = request.get_json()
-            customer_order_id = data.get('customer_order_id')
-            amount = data.get('amount')
-            payment_method = data.get('payment_method')
-            transaction_id = data.get('transaction_id')
-
-            new_sale = Sale(**data)
-            db.session.add(new_sale)
-            db.session.commit()
-
-            return jsonify({'message': 'Sale created successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
-
-# Resource for handling individual sales
-@sale_ns.route('/sales/<int:id>')
-class SaleDetailResource(Resource):
-
-    @sale_ns.marshal_with(sale_model)
-    def get(self, id):
-        """Get a sale by id"""
-        sale = Sale.query.get_or_404(id)
-        return sale, 200
-
-    @sale_ns.expect(sale_model)
-    @jwt_required()
-    def put(self, id):
-        """Update a sale by id"""
-        try:
-            data = request.get_json()
-            sale_to_update = Sale.query.get_or_404(id)
-            sale_to_update.update(**data)
-
-            db.session.commit()
-
-            return jsonify({'message': 'Sale updated successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
-
-    @jwt_required()
-    def delete(self, id):
-        """Delete a sale by id"""
-        try:
-            sale_to_delete = Sale.query.get_or_404(id)
-            db.session.delete(sale_to_delete)
-            db.session.commit()
-
-            return jsonify({'message': 'Sale deleted successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
 
 
 # Initialize Flask-RESTx Namespace for Invoices
