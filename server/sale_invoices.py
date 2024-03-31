@@ -9,7 +9,7 @@ sale_invoice_ns = Namespace('sales', description='Sale Operations')
 
 # Model for Sale Serializer
 sale_model = sale_invoice_ns.model(
-    'Sale', {
+    'SaleInvoice', {
         'id': fields.Integer,
         'customer_order_id': fields.Integer,
         'amount': fields.Float,
@@ -17,7 +17,7 @@ sale_model = sale_invoice_ns.model(
         'transaction_id': fields.String,
         'active_sale': fields.Boolean,
         'status': fields.String,
-        'due_date': fields.Date,  # Add due date field for invoice due date
+        'due_date': fields.Date,
         'deleted': fields.Boolean,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
@@ -43,9 +43,9 @@ class SaleResource(Resource):
             new_sale = SaleInvoice(**data)
             new_sale.save()
 
-            # If active sale is true, generate invoice
-            if data.get('active_sale', False):
-                generate_invoice(new_sale)
+            ## If active sale is true, generate invoice
+            #if data.get('active_sale', False):
+            #    generate_invoice(new_sale)
 
             return jsonify({'message': 'Sale created successfully'})
         except Exception as e:
@@ -71,14 +71,14 @@ class SaleDetailResource(Resource):
             sale_to_update = SaleInvoice.query.get_or_404(id)
             sale_to_update.update(**data)
 
-            # If active sale is true and status is updated, generate invoice
-            if data.get('active_sale', False) and data.get('status') != 'Pending':
-                generate_invoice(sale_to_update, data.get('due_date'))  # Pass due date from request data
-            elif data.get('status') == 'Pending':
-                # If status is reverted to pending, delete the invoice
-                delete_invoice(sale_to_update)
+            ## If active sale is true and status is updated, generate invoice
+            #if data.get('active_sale', False) and data.get('status') != 'Pending':
+            #    generate_invoice(sale_to_update, data.get('due_date'))  # Pass due date from request data
+            #elif data.get('status') == 'Pending':
+            #    # If status is reverted to pending, delete the invoice
+            #    delete_invoice(sale_to_update)
 
-            db.session.commit()
+            #db.session.commit()
 
             return jsonify({'message': 'Sale updated successfully'})
         except Exception as e:

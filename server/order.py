@@ -123,19 +123,18 @@ class OrderDetailResource(Resource):
         """Delete an order by id"""
         try:
             order_to_delete = Order.query.get_or_404(id)
-            quantity = order_to_delete.quantity
 
-            # Update medication stock
-            medication = Medication.query.get_or_404(order_to_delete.medication_id)
-            medication.stock_quantity += quantity
-            medication.save()
-
-            # Delete corresponding sale
+            # Delete corresponding sale first
             sale_to_delete = SaleInvoice.query.filter_by(customer_order_id=order_to_delete.id).first()
             if sale_to_delete:
                 sale_to_delete.delete()
 
-            # Delete order
+            # Update medication stock after ensuring consistency
+            medication = Medication.query.get_or_404(order_to_delete.medication_id)
+            medication.stock_quantity += order_to_delete.quantity
+            medication.save()
+
+            # Finally, delete the order
             order_to_delete.delete()
 
             return jsonify({'message': 'Order deleted successfully'})

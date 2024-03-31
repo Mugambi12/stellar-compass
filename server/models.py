@@ -77,7 +77,7 @@ class SaleInvoice(db.Model, BaseMixin):
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     active_sale = db.Column(db.Boolean, nullable=False, default=False)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Values: Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
     due_date = db.Column(db.Date, nullable=True)
 
     # Define the relationship with payments
