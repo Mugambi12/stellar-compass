@@ -10,7 +10,7 @@ from auth import auth_ns
 from users import user_ns
 from medications import medicine_ns
 from order import order_ns
-from sales import sale_invoice_ns
+from sale_invoices import sale_invoice_ns
 from payments import payment_ns
 
 
