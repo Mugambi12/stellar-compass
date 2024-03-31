@@ -1,7 +1,7 @@
 # Path: server/main.py
 
-from flask import Flask, request, jsonify
-from flask_restx import Api, Resource, fields
+from flask import Flask
+from flask_restx import Api
 from exts import db
 from models import User, Medication, Order, Statement
 from flask_migrate import Migrate

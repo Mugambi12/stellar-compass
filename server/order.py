@@ -51,7 +51,7 @@ class OrderResource(Resource):
         # Check medication availability
         medication = Medication.query.get_or_404(medication_id)
         if medication.stock_quantity < quantity:
-            return jsonify({'message': 'Insufficient stock'})
+            return jsonify({'message': f'Insufficient stock. There are only {medication.stock_quantity} units available'})
 
         # Create order
         total_price = quantity * medication.price
@@ -88,15 +88,16 @@ class OrderDetailResource(Resource):
         # Check medication availability
         medication = Medication.query.get_or_404(medication_id)
         if medication.stock_quantity < quantity:
-            return jsonify({'message': 'Insufficient stock'})
+            return jsonify({'message': f'Insufficient stock. There are only {medication.stock_quantity} units available'})
 
         total_price = quantity * medication.price
         order_to_update.update(**data, total_price=total_price)
 
-        if order_to_update.quantity != quantity:
-            # Update medication stock
-            medication.stock_quantity += order_to_update.quantity
-            medication.stock_quantity -= quantity
+        if order_to_update.quantity > quantity:
+            medication.stock_quantity -= (order_to_update.quantity - quantity)
+            medication.save()
+        elif order_to_update.quantity < quantity:
+            medication.stock_quantity += (quantity - order_to_update.quantity)
             medication.save()
 
         return jsonify({'message': 'Order updated successfully'})

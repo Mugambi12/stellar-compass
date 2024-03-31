@@ -1,7 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields
 from models import User
-from flask_jwt_extended import jwt_required
 
 user_ns = Namespace('users', description='User Operations')
 
