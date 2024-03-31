@@ -24,6 +24,12 @@ user_model = user_ns.model(
 )
 
 
+@user_ns.route('/hello')
+class HelloWorld(Resource):
+    def get(self):
+        return {'message': 'Hello world'}
+
+
 @user_ns.route('/users')
 class UserResource(Resource):
 
