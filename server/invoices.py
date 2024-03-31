@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
-from models import Order, Medication, Sale, Invoice, Payment
+from models import Order, Medication, Payment
 from exts import db
 from flask_jwt_extended import jwt_required
 

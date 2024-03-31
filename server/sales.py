@@ -17,6 +17,7 @@ sale_model = sale_invoice_ns.model(
         'transaction_id': fields.String,
         'active_sale': fields.Boolean,
         'status': fields.String,
+        'due_date': fields.Date,  # Add due date field for invoice due date
         'deleted': fields.Boolean,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
@@ -72,7 +73,10 @@ class SaleDetailResource(Resource):
 
             # If active sale is true and status is updated, generate invoice
             if data.get('active_sale', False) and data.get('status') != 'Pending':
-                generate_invoice(sale_to_update)
+                generate_invoice(sale_to_update, data.get('due_date'))  # Pass due date from request data
+            elif data.get('status') == 'Pending':
+                # If status is reverted to pending, delete the invoice
+                delete_invoice(sale_to_update)
 
             db.session.commit()
 
@@ -85,7 +89,7 @@ class SaleDetailResource(Resource):
     def delete(self, id):
         """Delete a sale by id"""
         try:
-            sale_to_delete = Sale.query.get_or_404(id)
+            sale_to_delete = SaleInvoice.query.get_or_404(id)
             db.session.delete(sale_to_delete)
             db.session.commit()
 
@@ -94,93 +98,23 @@ class SaleDetailResource(Resource):
             db.session.rollback()
             abort(500, message=str(e))
 
-# Function to generate invoice
-def generate_invoice(sale):
+# Function to generate or update invoice
+def generate_invoice(sale, due_date=None):
     invoice_data = {
-        'sale_id': sale.id,
-        # Populate other invoice data fields as needed
+        'customer_order_id': sale.customer_order_id,
+        'amount': sale.amount,
+        'due_date': due_date,
+        'status': 'Pending'  # Assuming initial status is pending
     }
-    new_invoice = SaleInvoice(**invoice_data)
-    new_invoice.save()
+    existing_invoice = SaleInvoice.query.filter_by(customer_order_id=sale.customer_order_id).first()
+    if existing_invoice:
+        existing_invoice.update(**invoice_data)  # Update existing invoice
+    else:
+        new_invoice = SaleInvoice(**invoice_data)
+        new_invoice.save()  # Create new invoice
 
-# Initialize Flask-RESTx Namespace for Invoices
-invoice_ns = Namespace('invoices', description='Invoice Operations')
-
-# Model for Invoice Serializer
-invoice_model = invoice_ns.model(
-    'Invoice', {
-        'id': fields.Integer,
-        'sale_id': fields.Integer,
-        'customer_order_id': fields.Integer,
-        'amount': fields.Float,
-        'status': fields.String,
-        'due_date': fields.Date,
-        'deleted': fields.Boolean,
-        'created_at': fields.DateTime,
-        'updated_at': fields.DateTime,
-    }
-)
-
-# Resource for handling invoices
-@invoice_ns.route('/invoices')
-class InvoiceResource(Resource):
-
-    @invoice_ns.marshal_list_with(invoice_model)
-    def get(self):
-        """Get all invoices"""
-        invoices = Invoice.query.all()
-        return invoices, 200
-
-    @invoice_ns.expect(invoice_model)
-    @jwt_required()
-    def post(self):
-        """Create a new invoice"""
-        try:
-            data = request.get_json()
-            new_invoice = Invoice(**data)
-            db.session.add(new_invoice)
-            db.session.commit()
-
-            return jsonify({'message': 'Invoice created successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
-
-# Resource for handling individual invoices
-@invoice_ns.route('/invoice/<int:id>')
-class InvoiceDetailResource(Resource):
-
-    @invoice_ns.marshal_with(invoice_model)
-    def get(self, id):
-        """Get an invoice by id"""
-        invoice = Invoice.query.get_or_404(id)
-        return invoice, 200
-
-    @invoice_ns.expect(invoice_model)
-    @jwt_required()
-    def put(self, id):
-        """Update an invoice by id"""
-        try:
-            data = request.get_json()
-            invoice_to_update = Invoice.query.get_or_404(id)
-            invoice_to_update.update(**data)
-
-            db.session.commit()
-
-            return jsonify({'message': 'Invoice updated successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
-
-    @jwt_required()
-    def delete(self, id):
-        """Delete an invoice by id"""
-        try:
-            invoice_to_delete = Invoice.query.get_or_404(id)
-            db.session.delete(invoice_to_delete)
-            db.session.commit()
-
-            return jsonify({'message': 'Invoice deleted successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+# Function to delete invoice
+def delete_invoice(sale):
+    existing_invoice = SaleInvoice.query.filter_by(customer_order_id=sale.customer_order_id).first()
+    if existing_invoice:
+        db.session.delete(existing_invoice)  # Delete existing invoice

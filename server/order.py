@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
-from models import Order, Medication, Sale
+from models import Order, Medication, SaleInvoice
 from exts import db
 from flask_jwt_extended import jwt_required
 
@@ -56,7 +56,7 @@ class OrderResource(Resource):
             new_order.save()
 
             # Create corresponding sale
-            new_sale = Sale(customer_order_id=new_order.id, amount=new_order.total_price)
+            new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
             new_sale.save()
 
             # Update medication stock
@@ -108,7 +108,7 @@ class OrderDetailResource(Resource):
             order_to_update.update(**data, total_price=total_price)
 
             # Update corresponding sale
-            sale = Sale.query.filter_by(customer_order_id=order_to_update.id).first()
+            sale = SaleInvoice.query.filter_by(customer_order_id=order_to_update.id).first()
             if sale:
                 sale.amount = total_price
                 sale.save()
@@ -131,7 +131,7 @@ class OrderDetailResource(Resource):
             medication.save()
 
             # Delete corresponding sale
-            sale_to_delete = Sale.query.filter_by(customer_order_id=order_to_delete.id).first()
+            sale_to_delete = SaleInvoice.query.filter_by(customer_order_id=order_to_delete.id).first()
             if sale_to_delete:
                 sale_to_delete.delete()
 
