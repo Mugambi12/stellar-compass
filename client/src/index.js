@@ -3,11 +3,16 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Navbar from "./components/Navbar";
 
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
 const App = () => {
   return (
-    <div className="container">
-      <Navbar />
-    </div>
+    <Router>
+      <div className="container">
+        <Navbar />
+        <Switch></Switch>
+      </div>
+    </Router>
   );
 };
 
