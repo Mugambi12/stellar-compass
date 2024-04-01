@@ -14,8 +14,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const loginUser = (data) => {
-    console.log(data);
-
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -25,7 +23,6 @@ const Login = () => {
     fetch("/auth/login", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.access_token);
         login(data.access_token);
 
         navigate("/medicines");
