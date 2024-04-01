@@ -19,9 +19,12 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
+        <div
+          className="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
           <ul className="navbar-nav">
-            <li className="nav-item">
+            <li className="nav-item me-2">
               <Link
                 className="nav-link active"
                 aria-current="page"
@@ -30,22 +33,22 @@ const Navbar = () => {
                 Medicines
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-2">
               <Link className="nav-link active" to="/orders">
                 Orders
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-2">
               <Link className="nav-link active" to="/sales">
                 Sales
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-2">
               <Link className="nav-link active" to="/payments">
                 Payments
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item me-2">
               <Link className="nav-link active" to="/">
                 Login
               </Link>
