@@ -2,11 +2,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import Navbar from "./components/Navbar";
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Updated import
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 import Medicines from "./components/Medicines";
-import Orders from "./components/Orders";
+import Orders from "./components/OrdersMade";
 import Sales from "./components/Sales";
 import Payments from "./components/Payments";
 

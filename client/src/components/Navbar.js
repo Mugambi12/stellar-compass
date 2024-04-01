@@ -20,7 +20,7 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div
-          className="collapse navbar-collapse justify-content-end"
+          className="collapse navbar-collapse justify-content-center"
           id="navbarNav"
         >
           <ul className="navbar-nav">
