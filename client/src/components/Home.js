@@ -1,19 +1,35 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Card, Col } from "react-bootstrap";
-//import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { login } from "../auth";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const loginUser = (e) => {
-    console.log("Form submitted");
-    console.log(username);
-    console.log(password);
+  const navigate = useNavigate();
 
-    setUsername("");
-    setPassword("");
+  const loginUser = (data) => {
+    console.log(data);
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    fetch("/auth/login", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.access_token);
+        login(data.access_token);
+
+        navigate("/medicines");
+      });
   };
 
   return (
@@ -21,19 +37,24 @@ const Login = () => {
       <Card className="p-3 col-md-7 mx-auto">
         <h3 className="text-center mb-3">Welcome to Utibu Health</h3>
         <div className="form">
-          <Form>
+          <Form onSubmit={handleSubmit(loginUser)}>
             <Col className="mb-3">
               <Form.Group>
                 <Form.Label className="mb-2">Username</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter username"
-                  value={username}
-                  name="username"
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                  }}
+                  {...register("username", { required: true, maxLength: 50 })}
                 />
+
+                {errors.username && (
+                  <p className="text-danger small">Username is required</p>
+                )}
+                {errors.username?.type === "maxLength" && (
+                  <p className="text-danger small">
+                    Username is too long. Max 50 characters
+                  </p>
+                )}
               </Form.Group>
             </Col>
             <Col className="mb-3">
@@ -42,27 +63,23 @@ const Login = () => {
                 <Form.Control
                   type="password"
                   placeholder="Enter password"
-                  value={password}
-                  name="password"
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                  }}
+                  {...register("password", { required: true, minLength: 8 })}
                 />
+
+                {errors.password && (
+                  <p className="text-danger small">Password is required</p>
+                )}
+                {errors.password?.type === "minLength" && (
+                  <p className="text-danger small">
+                    Password is too short. Min 8 characters
+                  </p>
+                )}
               </Form.Group>
             </Col>
 
-            <br />
-
-            <Form.Group>
-              <Button
-                as="sub"
-                variant="primary"
-                type="submit"
-                onClick={loginUser}
-              >
-                Login
-              </Button>
-            </Form.Group>
+            <Button variant="primary" type="submit">
+              Login
+            </Button>
 
             <br />
 

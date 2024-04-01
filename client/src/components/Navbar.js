@@ -1,7 +1,70 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth, logout } from "../auth";
+
+const LoggedInLinks = () => {
+  return (
+    <>
+      <li className="nav-item me-2">
+        <Link className="nav-link active" aria-current="page" to="/medicines">
+          Medicines
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
+        <Link className="nav-link active" to="/orders">
+          Orders
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
+        <Link className="nav-link active" to="/sales">
+          Sales
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
+        <Link className="nav-link active" to="/payments">
+          Payments
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
+        <a
+          className="nav-link active"
+          href="/"
+          onClick={() => {
+            logout();
+          }}
+        >
+          Logout
+        </a>
+      </li>
+    </>
+  );
+};
+
+const LoggedOutLinks = () => {
+  return (
+    <>
+      <li className="nav-item me-2">
+        <Link className="nav-link active" to="/">
+          Login
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
+        <Link className="nav-link active" to="/register">
+          Register
+        </Link>
+      </li>
+    </>
+  );
+};
 
 const Navbar = () => {
+  const [logged] = useAuth();
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
@@ -24,35 +87,7 @@ const Navbar = () => {
           id="navbarNav"
         >
           <ul className="navbar-nav">
-            <li className="nav-item me-2">
-              <Link
-                className="nav-link active"
-                aria-current="page"
-                to="/medicines"
-              >
-                Medicines
-              </Link>
-            </li>
-            <li className="nav-item me-2">
-              <Link className="nav-link active" to="/orders">
-                Orders
-              </Link>
-            </li>
-            <li className="nav-item me-2">
-              <Link className="nav-link active" to="/sales">
-                Sales
-              </Link>
-            </li>
-            <li className="nav-item me-2">
-              <Link className="nav-link active" to="/payments">
-                Payments
-              </Link>
-            </li>
-            <li className="nav-item me-2">
-              <Link className="nav-link active" to="/">
-                Login
-              </Link>
-            </li>
+            {logged ? <LoggedInLinks /> : <LoggedOutLinks />}
           </ul>
         </div>
       </div>

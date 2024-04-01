@@ -12,7 +12,7 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [serverResponse, setServerResponse] = useState("");
 
   const submitForm = (data) => {
