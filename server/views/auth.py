@@ -43,7 +43,7 @@ class SignupResource(Resource):
 
         new_user = User(**data)
         new_user.save()
-        return jsonify({"message": "User created successfully"})
+        return jsonify({"message": "You have successfully created an account. You can now login to your account."})
 
 
 @auth_ns.route('/login')
