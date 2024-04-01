@@ -6,6 +6,12 @@ const LoggedInLinks = () => {
   return (
     <>
       <li className="nav-item me-2">
+        <Link className="nav-link active" aria-current="page" to="/users">
+          Users
+        </Link>
+      </li>
+
+      <li className="nav-item me-2">
         <Link className="nav-link active" aria-current="page" to="/medicines">
           Medicines
         </Link>

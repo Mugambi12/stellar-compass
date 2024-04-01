@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Button, Card, Col } from "react-bootstrap";
+import { Form, Button, Alert, Card, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { login } from "../auth";
 
@@ -10,6 +10,9 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const [show, setShow] = useState(false);
+  const [serverResponse, setServerResponse] = useState("");
 
   const navigate = useNavigate();
 
@@ -23,9 +26,13 @@ const Login = () => {
     fetch("/auth/login", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        login(data.access_token);
-
-        navigate("/medicines");
+        if (data.access_token) {
+          login(data.access_token);
+          navigate("/users");
+        } else {
+          setServerResponse(data.message);
+          setShow(true);
+        }
       });
   };
 
@@ -33,6 +40,16 @@ const Login = () => {
     <div className="container mt-5">
       <Card className="p-3 col-md-7 mx-auto">
         <h3 className="text-center mb-3">Welcome to Utibu Health</h3>
+
+        {show ? (
+          <>
+            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+              <Alert.Heading>Login Failed!</Alert.Heading>
+              <p>{serverResponse}</p>
+            </Alert>
+          </>
+        ) : null}
+
         <div className="form">
           <Form onSubmit={handleSubmit(loginUser)}>
             <Col className="mb-3">

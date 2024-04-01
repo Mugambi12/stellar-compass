@@ -64,6 +64,8 @@ class LoginResource(Resource):
                 'access_token': access_token,
                 'refresh_token': refresh_token
             })
+        else:
+            return jsonify({"message": "Login failed. Please check your credentials."})
 
 @auth_ns.route('/refresh')
 class RefreshTokenResource(Resource):

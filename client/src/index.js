@@ -11,6 +11,7 @@ import Orders from "./components/OrdersMade";
 import Sales from "./components/Sales";
 import Payments from "./components/Payments";
 import Register from "./components/Register";
+import Users from "./components/Users";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
       <Navbar />
       <div className="container">
         <Routes>
+          <Route path="/users" element={<Users />} />
           <Route path="/medicines" element={<Medicines />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/sales" element={<Sales />} />
