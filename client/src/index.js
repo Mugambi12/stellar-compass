@@ -5,10 +5,10 @@ import Navbar from "./components/Navbar";
 
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./components/Home";
-import Medicines from "./components/Medicines";
-import Orders from "./components/Orders";
-import Sales from "./components/Sales";
-import Payments from "./components/Payments";
+//import Medicines from "./components/Medicines";
+//import Orders from "./components/Orders";
+//import Sales from "./components/Sales";
+//import Payments from "./components/Payments";
 
 const App = () => {
   return (
