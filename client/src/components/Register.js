@@ -39,13 +39,6 @@ const Register = () => {
     }
   };
 
-  //console.log(watch("username"));
-  //console.log(watch("email"));
-  //console.log(watch("address"));
-  //console.log(watch("contact_info"));
-  //console.log(watch("password"));
-  //console.log(watch("confirm_password"));
-
   return (
     <div className="container mt-5">
       <Card className="p-3 col-md-8 mx-auto">
