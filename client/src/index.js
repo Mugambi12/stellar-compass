@@ -3,35 +3,28 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Navbar from "./components/Navbar";
 
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Updated import
 import Home from "./components/Home";
-//import Medicines from "./components/Medicines";
-//import Orders from "./components/Orders";
-//import Sales from "./components/Sales";
-//import Payments from "./components/Payments";
+import Medicines from "./components/Medicines";
+import Orders from "./components/Orders";
+import Sales from "./components/Sales";
+import Payments from "./components/Payments";
 
 const App = () => {
   return (
     <Router>
       <div className="container">
         <Navbar />
-        <Switch>
-          <Route path="/medicines">
-            <Medicines />
-          </Route>
-          <Route path="/orders">
-            <Orders />
-          </Route>
-          <Route path="/sales">
-            <Sales />
-          </Route>
-          <Route path="/payments">
-            <Payments />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
+        <Routes>
+          {" "}
+          {/* Updated */}
+          <Route path="/medicines" element={<Medicines />} /> {/* Updated */}
+          <Route path="/orders" element={<Orders />} /> {/* Updated */}
+          <Route path="/sales" element={<Sales />} /> {/* Updated */}
+          <Route path="/payments" element={<Payments />} /> {/* Updated */}
+          <Route path="/" element={<Home />} /> {/* Updated */}
+        </Routes>{" "}
+        {/* Updated */}
       </div>
     </Router>
   );
