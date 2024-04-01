@@ -13,16 +13,38 @@ const Register = () => {
   } = useForm();
 
   const submitForm = (data) => {
-    console.log(data);
-    reset();
+    if (data.password === data.confirm_password) {
+      const body = {
+        username: data.username,
+        email: data.email,
+        address: data.address,
+        contact_info: data.contact_info,
+        password: data.password,
+      };
+
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      };
+
+      fetch("/auth/signup", requestOptions)
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+        .catch((error) => console.log(error));
+
+      reset();
+    } else {
+      alert("Passwords do not match");
+    }
   };
 
-  console.log(watch("username"));
-  console.log(watch("email"));
-  console.log(watch("address"));
-  console.log(watch("contact_info"));
-  console.log(watch("password"));
-  console.log(watch("confirm_password"));
+  //console.log(watch("username"));
+  //console.log(watch("email"));
+  //console.log(watch("address"));
+  //console.log(watch("contact_info"));
+  //console.log(watch("password"));
+  //console.log(watch("confirm_password"));
 
   return (
     <div className="container mt-5">

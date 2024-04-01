@@ -13,8 +13,7 @@ signup_model = auth_ns.model(
         'email': fields.String,
         'password': fields.String,
         'address': fields.String,
-        'contact_info': fields.String,
-        'role': fields.String
+        'contact_info': fields.String
     }
 )
 
