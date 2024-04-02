@@ -5,8 +5,6 @@ import CenterModal from "../utils/Modal";
 import CreateNewOrder from "../utils/CreateNewOrder";
 import UpdateOrder from "../utils/UpdateOrder";
 import DeleteOrder from "../utils/DeleteOrder";
-import $ from "jquery";
-import "datatables.net";
 
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
@@ -16,10 +14,6 @@ const OrdersMade = () => {
     fetch("/orders/orders")
       .then((response) => response.json())
       .then((data) => setOrdersMade(data));
-
-    $(document).ready(function () {
-      $("#ordersTable").DataTable();
-    });
   }, []);
 
   const [show, setShow] = useState(false);
@@ -61,7 +55,6 @@ const OrdersMade = () => {
       </Row>
 
       <Table
-        id="ordersTable"
         responsive
         borderless
         hover
