@@ -1,41 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Card, Button, Modal } from "react-bootstrap";
-import { EyeOutline } from "react-ionicons";
-
-const centerModal = (props) => {
-  return (
-    <Modal
-      show={props.show}
-      onHide={props.handleClose}
-      backdrop="static"
-      keyboard={false}
-      {...props}
-      size="lg"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Orders Modal</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
-        I will not close if you click outside me. Do not even try to press the
-        escape key.
-      </Modal.Body>
-
-      <Modal.Footer className="justify-content-between">
-        <Button size="sm" variant="secondary" onClick={props.handleClose}>
-          Close
-        </Button>
-        <Button size="sm" variant="primary">
-          Understood
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
+import { Table, Row, Col } from "react-bootstrap";
+import { EyeOutline, AddOutline, TrashOutline } from "react-ionicons";
+import CenterModal from "../utils/Modal";
 
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
+  const [modalType, setModalType] = useState("");
 
   useEffect(() => {
     fetch("/orders/orders")
@@ -45,28 +15,74 @@ const OrdersMade = () => {
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (type) => {
+    setShow(true);
+    setModalType(type);
+  };
+
+  const getModalTitle = (type) => {
+    switch (type) {
+      case "add":
+        return "Add Order";
+      case "update":
+        return "Update Order";
+      case "delete":
+        return "Delete Order";
+      default:
+        return "";
+    }
+  };
+
+  const getActionText = (type) => {
+    switch (type) {
+      case "add":
+        return "Add";
+      case "update":
+        return "Update";
+      case "delete":
+        return "Delete";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="container">
-      <Card.Title className="mt-3 mb-2">All Orders</Card.Title>
-      <Card.Subtitle className="mb-3 text-muted">
-        List of all orders placed
-      </Card.Subtitle>
+      <Row className="align-items-center mb-4">
+        <Col xs={8}>
+          <div className="mb-2">
+            <h4 className="mt-3 mb-1">All Orders</h4>
+            <p className="text-muted mb-0">List of all orders placed</p>
+          </div>
+        </Col>
+        <Col xs={4} className="text-end">
+          <AddOutline
+            color="#0096ff"
+            onClick={() => handleShow("add")}
+            style={{ cursor: "pointer", fontSize: "24px" }}
+          />
+        </Col>
+      </Row>
 
-      <Table responsive borderless hover variant="light">
+      <Table
+        responsive
+        borderless
+        hover
+        variant="light"
+        className="text-center"
+      >
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>User ID</th>
-            <th>Medicine ID</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Order Type</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th Col>Id</th>
+            <th Col>Name</th>
+            <th Col>User ID</th>
+            <th Col>Medicine ID</th>
+            <th Col>Quantity</th>
+            <th Col>Total Price</th>
+            <th Col>Order Type</th>
+            <th Col>Payment</th>
+            <th Col>Status</th>
+            <th Col>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -82,14 +98,39 @@ const OrdersMade = () => {
               <td>{order.payment_status}</td>
               <td>{order.status}</td>
               <td>
-                <EyeOutline color={"#0096ff"} onClick={handleShow} />
+                <EyeOutline
+                  style={{ cursor: "pointer", color: "#0096ff" }}
+                  onClick={() => handleShow("update")}
+                />
+
+                <TrashOutline
+                  className="ms-2"
+                  style={{ cursor: "pointer", color: "#ff0000" }}
+                  onClick={() => handleShow("delete")}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      {centerModal({ show, handleClose })}
+      {modalType && (
+        <CenterModal
+          show={show}
+          handleClose={handleClose}
+          title={getModalTitle(modalType)}
+          actionText={getActionText(modalType)}
+          handleAction={() => {
+            // Logic to handle action based on modalType
+            console.log(`Handling ${modalType} action...`);
+          }}
+        >
+          {/* Modal content based on modalType */}
+          {modalType === "add" && <p>Add Order Form</p>}
+          {modalType === "update" && <p>Update Order Form</p>}
+          {modalType === "delete" && <p>Confirm Deletion</p>}
+        </CenterModal>
+      )}
     </div>
   );
 };
