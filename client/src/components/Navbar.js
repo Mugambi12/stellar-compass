@@ -72,7 +72,7 @@ const Navbar = () => {
   const [logged] = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
       <div className="container-fluid mx-3">
         <Link className="navbar-brand" to="#">
           Utibu Health

@@ -4,14 +4,7 @@ import { EyeOutline, AddOutline, TrashOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
 import CreateNewOrder from "../utils/CreateNewOrder";
 import UpdateOrder from "../utils/UpdateOrder";
-
-const deleteOrder = ({ show }) => {
-  return (
-    <div style={{ display: show ? "block" : "none" }}>
-      <h1>delete order</h1>
-    </div>
-  );
-};
+import DeleteOrder from "../utils/DeleteOrder";
 
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
@@ -121,9 +114,8 @@ const OrdersMade = () => {
           {modalType === "update" && (
             <UpdateOrder show={modalType === "update"} />
           )}
-
           {modalType === "delete" && (
-            <deleteOrder show={modalType === "delete"} />
+            <DeleteOrder show={modalType === "delete"} />
           )}
         </CenterModal>
       )}

@@ -1,38 +1,29 @@
-import React from "react";
-import { Form, Row, Col, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { Button, Alert } from "react-bootstrap";
 
 const DeleteOrder = ({ show }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const [serverResponse, setServerResponse] = useState(null);
 
-  const submitForm = (data) => {
-    console.log(data);
-
-    const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-    console.log(token);
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JSON.parse(token)}`,
-      },
-      body: JSON.stringify(data),
-    };
-
-    fetch("/orders/orders", requestOptions)
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
+  const handleDelete = async () => {
+    // Add your delete order logic here
+    setServerResponse("Order deleted successfully!");
   };
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
-      <h1>update order</h1>
+      {serverResponse && (
+        <Alert
+          variant={
+            serverResponse.includes("successfully") ? "success" : "danger"
+          }
+        >
+          {serverResponse}
+        </Alert>
+      )}
+
+      <Button variant="danger" onClick={handleDelete}>
+        Delete
+      </Button>
     </div>
   );
 };

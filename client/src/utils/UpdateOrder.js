@@ -1,38 +1,33 @@
-import React from "react";
-import { Form, Row, Col, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
 
 const UpdateOrder = ({ show }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const [serverResponse, setServerResponse] = useState(null);
 
-  const submitForm = (data) => {
-    console.log(data);
-
-    const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-    console.log(token);
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JSON.parse(token)}`,
-      },
-      body: JSON.stringify(data),
-    };
-
-    fetch("/orders/orders", requestOptions)
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // Add your update order logic here
+    setServerResponse("Order updated successfully!");
   };
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
-      <h1>update order</h1>
+      {serverResponse && (
+        <Alert
+          variant={
+            serverResponse.includes("successfully") ? "success" : "danger"
+          }
+        >
+          {serverResponse}
+        </Alert>
+      )}
+
+      <Form onSubmit={handleSubmit}>
+        {/* Add your form fields for updating orders */}
+        <Button variant="primary" type="submit">
+          Update
+        </Button>
+      </Form>
     </div>
   );
 };
