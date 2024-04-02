@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
@@ -8,8 +8,22 @@ const CreateNewOrder = ({ show }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-
+  const [medicines, setMedicines] = useState([]);
   const [serverResponse, setServerResponse] = useState(null);
+
+  useEffect(() => {
+    fetchMedicines();
+  }, []);
+
+  const fetchMedicines = async () => {
+    try {
+      const response = await fetch("medicines/medications");
+      const data = await response.json();
+      setMedicines(data);
+    } catch (error) {
+      console.error("Error fetching medicines:", error);
+    }
+  };
 
   const submitForm = async (data) => {
     try {
@@ -70,14 +84,17 @@ const CreateNewOrder = ({ show }) => {
           </Col>
           <Col md={6} className="mb-3">
             <Form.Group className="mb-3">
-              <Form.Label>Medicine ID</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Medicine ID"
-                {...register("medication_id", { required: true })}
-              />
+              <Form.Label>Medicine</Form.Label>
+              <Form.Select {...register("medication_id", { required: true })}>
+                <option value="">Select Medicine</option>
+                {medicines.map((medicine) => (
+                  <option key={medicine.id} value={medicine.id}>
+                    {medicine.name}
+                  </option>
+                ))}
+              </Form.Select>
               {errors.medication_id && (
-                <p className="text-danger small">Medicine ID is required</p>
+                <p className="text-danger small">Medicine is required</p>
               )}
             </Form.Group>
           </Col>
