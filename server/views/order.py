@@ -39,35 +39,31 @@ class OrderResource(Resource):
     @jwt_required()
     def post(self):
         """Create a new order"""
-        try:
-            data = request.get_json()
-            user_id = data.get('user_id')
-            medication_id = data.get('medication_id')
-            quantity = data.get('quantity')
+        data = request.get_json()
+        user_id = data.get('user_id')
+        medication_id = data.get('medication_id')
+        quantity = data.get('quantity')
 
 
-            # Check medication availability
-            medication = Medication.query.get_or_404(medication_id)
-            if medication.stock_quantity < quantity:
-                abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
+        # Check medication availability
+        medication = Medication.query.get_or_404(medication_id)
+        if medication.stock_quantity < quantity:
+            abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
 
-            # Create order
-            total_price = quantity * medication.price
-            new_order = Order(**data, total_price=total_price)
-            new_order.save()
+        # Create order
+        total_price = quantity * medication.price
+        new_order = Order(**data, total_price=total_price)
+        new_order.save()
 
-            # Create corresponding sale
-            new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
-            new_sale.save()
+        # Create corresponding sale
+        new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
+        new_sale.save()
 
-            # Update medication stock
-            medication.stock_quantity -= quantity
-            medication.save()
+        # Update medication stock
+        medication.stock_quantity -= quantity
+        medication.save()
 
-            return jsonify({'message': 'Order placed successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        return jsonify({'message': 'Order placed successfully'})
 
 
 # Resource for handling individual orders
@@ -84,40 +80,36 @@ class OrderDetailResource(Resource):
     @jwt_required()
     def put(self, id):
         """Update an order by id"""
-        try:
-            data = request.get_json()
-            user_id = data.get('user_id')
-            medication_id = data.get('medication_id')
-            quantity = data.get('quantity')
+        data = request.get_json()
+        user_id = data.get('user_id')
+        medication_id = data.get('medication_id')
+        quantity = data.get('quantity')
 
-            order_to_update = Order.query.get_or_404(id)
+        order_to_update = Order.query.get_or_404(id)
 
-            # Check medication availability
-            medication = Medication.query.get_or_404(medication_id)
-            if medication.stock_quantity < quantity:
-                abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
+        # Check medication availability
+        medication = Medication.query.get_or_404(medication_id)
+        if medication.stock_quantity < quantity:
+            abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
 
-            total_price = quantity * medication.price
+        total_price = quantity * medication.price
 
-            # Adjust medication stock
-            if order_to_update.quantity > quantity:
-                medication.stock_quantity += order_to_update.quantity - quantity
-            elif order_to_update.quantity < quantity:
-                medication.stock_quantity -= quantity - order_to_update.quantity
+        # Adjust medication stock
+        if order_to_update.quantity > quantity:
+            medication.stock_quantity += order_to_update.quantity - quantity
+        elif order_to_update.quantity < quantity:
+            medication.stock_quantity -= quantity - order_to_update.quantity
 
-            # Update order
-            order_to_update.update(**data, total_price=total_price)
+        # Update order
+        order_to_update.update(**data, total_price=total_price)
 
-            # Update corresponding sale
-            sale = SaleInvoice.query.filter_by(customer_order_id=order_to_update.id).first()
-            if sale:
-                sale.amount = total_price
-                sale.save()
+        # Update corresponding sale
+        sale = SaleInvoice.query.filter_by(customer_order_id=order_to_update.id).first()
+        if sale:
+            sale.amount = total_price
+            sale.save()
 
-            return jsonify({'message': 'Order updated successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        return jsonify({'message': 'Order updated successfully'})
 
     @jwt_required()
     def delete(self, id):
