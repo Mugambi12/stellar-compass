@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Table, Row, Col, Button } from "react-bootstrap";
+import { Table, Row, Col } from "react-bootstrap";
 import { EyeOutline, AddOutline, TrashOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
-import CreateNewOrder from "../utils/CreateNewOrder";
-import UpdateOrder from "../utils/UpdateOrder";
-
-const deleteOrder = ({ show }) => {
-  return (
-    <div style={{ display: show ? "block" : "none" }}>
-      <h1>delete order</h1>
-    </div>
-  );
-};
 
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
@@ -33,11 +23,24 @@ const OrdersMade = () => {
   const getModalTitle = (type) => {
     switch (type) {
       case "add":
-        return "Add New Order";
+        return "Add Order";
       case "update":
         return "Update Order";
       case "delete":
         return "Delete Order";
+      default:
+        return "";
+    }
+  };
+
+  const getActionText = (type) => {
+    switch (type) {
+      case "add":
+        return "Add";
+      case "update":
+        return "Update";
+      case "delete":
+        return "Delete";
       default:
         return "";
     }
@@ -70,16 +73,16 @@ const OrdersMade = () => {
       >
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>User ID</th>
-            <th>Medicine ID</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Order Type</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th Col>Id</th>
+            <th Col>Name</th>
+            <th Col>User ID</th>
+            <th Col>Medicine ID</th>
+            <th Col>Quantity</th>
+            <th Col>Total Price</th>
+            <th Col>Order Type</th>
+            <th Col>Payment</th>
+            <th Col>Status</th>
+            <th Col>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -91,7 +94,7 @@ const OrdersMade = () => {
               <td>{order.medication_id}</td>
               <td>{order.quantity}</td>
               <td>{order.total_price}</td>
-              <td>{order.order_type ? "Shipping" : "Pickup"}</td>
+              <td>{order.order_type}</td>
               <td>{order.payment_status}</td>
               <td>{order.status}</td>
               <td>
@@ -99,6 +102,7 @@ const OrdersMade = () => {
                   style={{ cursor: "pointer", color: "#0096ff" }}
                   onClick={() => handleShow("update")}
                 />
+
                 <TrashOutline
                   className="ms-2"
                   style={{ cursor: "pointer", color: "#ff0000" }}
@@ -115,16 +119,16 @@ const OrdersMade = () => {
           show={show}
           handleClose={handleClose}
           title={getModalTitle(modalType)}
+          actionText={getActionText(modalType)}
+          handleAction={() => {
+            // Logic to handle action based on modalType
+            console.log(`Handling ${modalType} action...`);
+          }}
         >
           {/* Modal content based on modalType */}
-          {modalType === "add" && <CreateNewOrder show={modalType === "add"} />}
-          {modalType === "update" && (
-            <UpdateOrder show={modalType === "update"} />
-          )}
-
-          {modalType === "delete" && (
-            <deleteOrder show={modalType === "delete"} />
-          )}
+          {modalType === "add" && <p>Add Order Form</p>}
+          {modalType === "update" && <p>Update Order Form</p>}
+          {modalType === "delete" && <p>Confirm Deletion</p>}
         </CenterModal>
       )}
     </div>

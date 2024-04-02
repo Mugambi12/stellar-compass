@@ -45,6 +45,7 @@ class OrderResource(Resource):
             medication_id = data.get('medication_id')
             quantity = data.get('quantity')
 
+
             # Check medication availability
             medication = Medication.query.get_or_404(medication_id)
             if medication.stock_quantity < quantity:
