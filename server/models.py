@@ -31,7 +31,7 @@ class User(db.Model, BaseMixin):
     name = db.Column(db.String(100), nullable=True)
     address = db.Column(db.Text, nullable=True)
     contact_info = db.Column(db.String(100), nullable=True)
-    role = db.Column(db.String(20), nullable=True, default='customer')
+    role = db.Column(db.String(20), nullable=True, default='customer')  # Example: admin, customer
     #role = db.Column(db.String(20), nullable=False, default='customer')  # Example: admin, customer
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
@@ -65,6 +65,7 @@ class Order(db.Model, BaseMixin):
     total_price = db.Column(db.Float, nullable=False)
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
+    #shipping = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
 
     sale_invoices = relationship('SaleInvoice', backref='customer_order', lazy=True)
