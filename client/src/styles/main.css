@@ -41,6 +41,7 @@ textarea {
 */
 body {
   font-family: "Poppins", sans-serif;
+  background-color: aliceblue;
 }
 ::-webkit-scrollbar {
   width: 5px;

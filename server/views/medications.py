@@ -2,6 +2,7 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields
 from models import Medication
 from flask_jwt_extended import jwt_required
+from datetime import datetime
 
 medicine_ns = Namespace('medicines', description='Medicine Operations')
 
@@ -37,6 +38,7 @@ class MedicationResource(Resource):
     def post(self):
         """Create a new medication"""
         data = request.get_json()
+        data['expiry_date'] = datetime.strptime(data['expiry_date'], '%Y-%m-%d').date()
         new_medication = Medication(**data)
         new_medication.save()
         return jsonify({"message": "Medication created successfully"})
@@ -57,6 +59,7 @@ class MedicationResourceByID(Resource):
         """Update a medication by id"""
         medication_to_update = Medication.query.get_or_404(id)
         data = request.get_json()
+        data['expiry_date'] = datetime.strptime(data['expiry_date'], '%Y-%m-%d').date()
         medication_to_update.update(**data)
 
         return jsonify({"message": "Medication updated successfully"})
