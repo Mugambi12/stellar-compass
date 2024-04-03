@@ -21,7 +21,6 @@ const OrdersMade = () => {
 
   const handleClose = () => {
     setShow(false);
-    window.location.reload();
   };
 
   const handleShow = (type, order) => {

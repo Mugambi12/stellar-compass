@@ -1,14 +1,14 @@
 // UpdateOrder.js
 import React, { useState, useEffect } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { Form, Button, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 const UpdateOrder = ({ show, order }) => {
-  const orderToDeleteId = order.id;
-
   const [medicines, setMedicines] = useState([]);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverResponse, setserverResponse] = useState("");
 
   const {
     register,
@@ -19,24 +19,22 @@ const UpdateOrder = ({ show, order }) => {
   } = useForm();
 
   useEffect(() => {
-    if (order) {
-      setValue("quantity", order.quantity);
-      setValue("order_type", order.order_type ? "Shipping" : "Pickup");
-    }
-  }, [order]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const medicineResponse = await fetch("/medicines/medications");
-        const userDataResponse = await fetch("/users/users");
-        const medicineData = await medicineResponse.json();
-        const userData = await userDataResponse.json();
+        const [medicineResponse, userDataResponse] = await Promise.all([
+          fetch("/medicines/medications"),
+          fetch("/users/users"),
+        ]);
+        const [medicineData, userData] = await Promise.all([
+          medicineResponse.json(),
+          userDataResponse.json(),
+        ]);
         setMedicines(medicineData);
         setUsers(userData);
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setserverResponse("Error fetching data. Please try again later.");
       }
     };
     fetchData();
@@ -44,13 +42,23 @@ const UpdateOrder = ({ show, order }) => {
 
   useEffect(() => {
     if (order) {
+      setValue("quantity", order.quantity);
+      setValue("order_type", order.order_type ? "Shipping" : "Pickup");
       setValue("user_id", order.user_id);
       setValue("medication_id", order.medication_id);
     }
   }, [order, setValue]);
 
   const updateForm = async (data) => {
+    setIsSubmitting(true);
     const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+
+    const body = {
+      user_id: parseInt(data.user_id),
+      medication_id: parseInt(data.medication_id),
+      quantity: parseInt(data.quantity),
+      order_type: data.order_type === "Shipping",
+    };
 
     const requestOptions = {
       method: "PUT",
@@ -58,29 +66,47 @@ const UpdateOrder = ({ show, order }) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JSON.parse(token)}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(body),
     };
 
-    const response = await fetch(
-      `/orders/orders/${orderToDeleteId}`,
-      requestOptions
-    );
-    const responseData = await response.json();
+    try {
+      const response = await fetch(
+        `/orders/orders/${order.id}`,
+        requestOptions
+      );
+      const responseData = await response.json();
 
-    if (response.ok) {
-      reset();
-      window.location.reload();
-    } else {
-      console.error("Error updating order:", responseData);
+      if (response.ok) {
+        reset();
+        window.location.reload();
+      } else {
+        setserverResponse("Error updating order. Please try again later.");
+        console.error("Error updating order:", responseData);
+      }
+    } catch (error) {
+      setserverResponse("Error updating order. Please try again later.");
+      console.error("Error updating order:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner animation="border" />;
   }
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
+      {serverResponse && (
+        <Alert
+          variant={
+            serverResponse.includes("successfully") ? "success" : "danger"
+          }
+        >
+          {serverResponse}
+        </Alert>
+      )}
+
       <Form onSubmit={handleSubmit(updateForm)}>
         <Row>
           <Col md={6} className="mb-3">
@@ -145,8 +171,9 @@ const UpdateOrder = ({ show, order }) => {
             </Form.Group>
           </Col>
         </Row>
-        <Button variant="primary" type="submit">
-          Update
+
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Updating..." : "Update"}
         </Button>
       </Form>
     </div>
