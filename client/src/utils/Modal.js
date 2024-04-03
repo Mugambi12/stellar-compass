@@ -14,8 +14,8 @@ const CenterModal = ({ show, handleClose, title, children }) => {
       size={modalSize}
       centered={centerModal}
     >
-      <Modal.Header closeButton>
-        <Modal.Title>{title}</Modal.Title>
+      <Modal.Header closeButton className="border-0">
+        <Modal.Title className="h5 fw-bold">{title}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>{children}</Modal.Body>

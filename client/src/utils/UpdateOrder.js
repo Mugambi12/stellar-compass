@@ -46,6 +46,7 @@ const UpdateOrder = ({ show, order }) => {
       setValue("order_type", order.order_type ? "Shipping" : "Pickup");
       setValue("user_id", order.user_id);
       setValue("medication_id", order.medication_id);
+      setValue("payment_status", order.payment_status);
     }
   }, [order, setValue]);
 
@@ -92,7 +93,12 @@ const UpdateOrder = ({ show, order }) => {
   };
 
   if (isLoading) {
-    return <Spinner animation="border" />;
+    return (
+      <div className="text-center">
+        {" "}
+        <Spinner animation="border" /> Loading...{" "}
+      </div>
+    );
   }
 
   return (
@@ -167,6 +173,20 @@ const UpdateOrder = ({ show, order }) => {
               </Form.Select>
               {errors.order_type && (
                 <p className="text-danger small">Order Type is required</p>
+              )}
+            </Form.Group>
+          </Col>
+
+          <Col md={6} className="mb-3">
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Status</Form.Label>
+              <Form.Select {...register("payment_status", { required: true })}>
+                <option value="">Select Payment Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+              </Form.Select>
+              {errors.payment_status && (
+                <p className="text-danger small">Payment Status is required</p>
               )}
             </Form.Group>
           </Col>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Row, Col } from "react-bootstrap";
+import { Spinner, Table, Row, Col } from "react-bootstrap";
 import { EyeOutline, TrashOutline, AddOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
 import CreateNewMedicine from "../utils/CreateNewMedicine";
@@ -10,12 +10,14 @@ const Medicines = () => {
   const [medicines, setMedicines] = useState([]);
   const [modalType, setModalType] = useState("");
   const [selectedMedicine, setSelectedMedicine] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     fetch("/medicines/medications")
       .then((response) => response.json())
       .then((data) => setMedicines(data));
+    setIsLoading(false);
   }, []);
 
   const handleClose = () => {
@@ -40,6 +42,15 @@ const Medicines = () => {
         return "";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        {" "}
+        <Spinner animation="border" /> Loading...{" "}
+      </div>
+    );
+  }
 
   return (
     <div className="container">

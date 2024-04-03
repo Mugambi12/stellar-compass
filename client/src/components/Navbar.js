@@ -24,20 +24,20 @@ const LoggedInLinks = () => {
       </li>
 
       <li className="nav-item me-2">
-        <Link className="nav-link active" to="/sales">
-          Sales
-        </Link>
-      </li>
-
-      <li className="nav-item me-2">
         <Link className="nav-link active" to="/payments">
-          Payments
+          Payment
         </Link>
       </li>
 
       <li className="nav-item me-2">
+        <Link className="nav-link active" to="/sales">
+          Sales/Invoices
+        </Link>
+      </li>
+
+      <li className="nav-item me-2 ms-2">
         <a
-          className="nav-link active"
+          className="nav-link active  btn btn-outline-danger btn-sm"
           href="/"
           onClick={() => {
             logout();

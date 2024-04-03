@@ -1,6 +1,5 @@
-// OrdersMade.js
 import React, { useEffect, useState } from "react";
-import { Table, Row, Col } from "react-bootstrap";
+import { Spinner, Table, Row, Col } from "react-bootstrap";
 import { EyeOutline, AddOutline, TrashOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
 import CreateNewOrder from "../utils/CreateNewOrder";
@@ -9,14 +8,38 @@ import DeleteOrder from "../utils/DeleteOrder";
 
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
+  const [medicines, setMedicines] = useState([]);
+  const [users, setUsers] = useState([]);
   const [modalType, setModalType] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    fetch("/orders/orders")
-      .then((response) => response.json())
-      .then((data) => setOrdersMade(data));
+    const fetchData = async () => {
+      try {
+        const [ordersResponse, medicinesResponse, usersResponse] =
+          await Promise.all([
+            fetch("/orders/orders"),
+            fetch("/medicines/medications"),
+            fetch("/users/users"),
+          ]);
+        const [ordersData, medicinesData, usersData] = await Promise.all([
+          ordersResponse.json(),
+          medicinesResponse.json(),
+          usersResponse.json(),
+        ]);
+        setOrdersMade(ordersData);
+        setMedicines(medicinesData);
+        setUsers(usersData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle error
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleClose = () => {
@@ -28,6 +51,18 @@ const OrdersMade = () => {
     setModalType(type);
     setShow(true);
   };
+
+  const getMedicineName = (medicationId) => {
+    const medicine = medicines.find((medicine) => medicine.id === medicationId);
+    return medicine ? medicine.name : "Unknown Medicine";
+  };
+
+  const getUserName = (userId) => {
+    const user = users.find((user) => user.id === userId);
+    return user ? user.username : "Unknown User";
+  };
+
+  // Rest of the component remains unchanged
 
   const getModalTitle = (type) => {
     switch (type) {
@@ -41,6 +76,15 @@ const OrdersMade = () => {
         return "";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        {" "}
+        <Spinner animation="border" /> Loading...{" "}
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -71,29 +115,31 @@ const OrdersMade = () => {
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>User ID</th>
-            <th>Medicine ID</th>
+            <th>User Name</th>
+            <th>Medicine Name</th>
             <th>Quantity</th>
             <th>Total Price</th>
             <th>Order Type</th>
-            <th>Payment</th>
             <th>Status</th>
+            <th>Payment</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
+          {/* Loop through orders */}
           {ordersMade.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
               <td>{order.name}</td>
-              <td>{order.user_id}</td>
-              <td>{order.medication_id}</td>
+              <td>{getUserName(order.user_id)}</td>
+              <td>{getMedicineName(order.medication_id)}</td>
               <td>{order.quantity}</td>
               <td>{order.total_price}</td>
               <td>{order.order_type ? "Shipping" : "Pickup"}</td>
-              <td>{order.payment_status}</td>
               <td>{order.status}</td>
+              <td>{order.payment_status}</td>
               <td>
+                {/* Action icons */}
                 <EyeOutline
                   style={{ cursor: "pointer", color: "#0096ff" }}
                   onClick={() => {
@@ -114,6 +160,7 @@ const OrdersMade = () => {
         </tbody>
       </Table>
 
+      {/* Modal */}
       {modalType && (
         <CenterModal
           show={show}
