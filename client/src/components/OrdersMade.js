@@ -84,7 +84,7 @@ const OrdersMade = () => {
   }
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       <Row className="align-items-center mb-4">
         <Col xs={8}>
           <div className="mb-2">

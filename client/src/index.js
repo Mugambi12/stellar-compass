@@ -18,16 +18,31 @@ const App = () => {
   return (
     <Router>
       <Navbar />
-      <div className="container p-3">
-        <Routes>
-          <Route path="/users" element={<Users />} />
-          <Route path="/medicines" element={<Medicines />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/invoices" element={<Invoices />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/register" element={<Register />} />{" "}
-          <Route path="/" element={<Login />} />
-        </Routes>
+      <div className="container-fluid p-0 m-0">
+        {/* Routes for larger screens */}
+        <div className="d-none d-md-block p-3">
+          <Routes>
+            <Route path="/users" element={<Users />} />
+            <Route path="/medicines" element={<Medicines />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Login />} />
+          </Routes>
+        </div>
+        {/* Routes for smaller screens */}
+        <div className="d-md-none d-sm-block ">
+          <Routes>
+            <Route path="/users" element={<Users />} />
+            <Route path="/medicines" element={<Medicines />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Login />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );

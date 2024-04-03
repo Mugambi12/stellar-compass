@@ -38,71 +38,66 @@ const Login = () => {
 
   return (
     <div className="container mt-5">
-      <Card className="p-3 col-md-7 mx-auto">
-        <h3 className="text-center mb-3">Welcome to Utibu Health</h3>
-
-        {show ? (
-          <>
-            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
-              <Alert.Heading>Login Failed!</Alert.Heading>
-              <p>{serverResponse}</p>
-            </Alert>
-          </>
-        ) : null}
-
-        <div className="form">
-          <Form onSubmit={handleSubmit(loginUser)}>
-            <Col className="mb-3">
-              <Form.Group>
-                <Form.Label className="mb-2">Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter username"
-                  {...register("username", { required: true, maxLength: 50 })}
-                />
-
-                {errors.username && (
-                  <p className="text-danger small">Username is required</p>
-                )}
-                {errors.username?.type === "maxLength" && (
-                  <p className="text-danger small">
-                    Username is too long. Max 50 characters
-                  </p>
-                )}
-              </Form.Group>
-            </Col>
-            <Col className="mb-3">
-              <Form.Group>
-                <Form.Label className="mb-2">Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  {...register("password", { required: true, minLength: 8 })}
-                />
-
-                {errors.password && (
-                  <p className="text-danger small">Password is required</p>
-                )}
-                {errors.password?.type === "minLength" && (
-                  <p className="text-danger small">
-                    Password is too short. Min 8 characters
-                  </p>
-                )}
-              </Form.Group>
-            </Col>
-
-            <Button variant="primary" type="submit">
-              Login
-            </Button>
-
-            <br />
-
-            <Form.Group>
-              <small>
-                Do not have an account? <Link to="/register"> Get Started</Link>
-              </small>
-            </Form.Group>
-          </Form>
+      <Card className="p-4 col-md-5 mx-auto">
+        <div className="text-center mb-4">
+          <h3>Welcome to Utibu Health</h3>
+          <p className="text-muted">Happy to see you back</p>
+        </div>
+        {show && (
+          <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+            <Alert.Heading>Login Failed!</Alert.Heading>
+            <p>{serverResponse}</p>
+          </Alert>
+        )}
+        <Form onSubmit={handleSubmit(loginUser)}>
+          <Form.Group controlId="formUsername">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter username"
+              {...register("username", { required: true, maxLength: 50 })}
+            />
+            {errors.username && (
+              <Form.Text className="text-danger">
+                Username is required
+              </Form.Text>
+            )}
+            {errors.username?.type === "maxLength" && (
+              <Form.Text className="text-danger">
+                Username is too long. Max 50 characters
+              </Form.Text>
+            )}
+          </Form.Group>
+          <Form.Group controlId="formPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter password"
+              {...register("password", { required: true, minLength: 8 })}
+            />
+            {errors.password && (
+              <Form.Text className="text-danger">
+                Password is required
+              </Form.Text>
+            )}
+            {errors.password?.type === "minLength" && (
+              <Form.Text className="text-danger">
+                Password is too short. Min 8 characters
+              </Form.Text>
+            )}
+          </Form.Group>
+          <Button
+            variant="primary"
+            type="submit"
+            className="mt-4 mb-2 py-3 w-100 fs-5 bg-gradient border-0"
+          >
+            Login
+          </Button>
+        </Form>
+        <div className="text-center mt-3">
+          <small>
+            Don't have an account? <Link to="/register">Get Started</Link>
+          </small>
         </div>
       </Card>
     </div>

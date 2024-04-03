@@ -1,73 +1,55 @@
-// UpdateMedicine.js
-import React, { useState, useEffect } from "react";
-import { Form, Button, Spinner, Alert, Row, Col } from "react-bootstrap";
+import React, { useState } from "react";
+import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
-const UpdateMedicine = ({ show, medicine }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serverResponse, setServerResponse] = useState("");
-
+const CreateUser = ({ show }) => {
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
     formState: { errors },
   } = useForm();
+  const [serverResponse, setServerResponse] = useState(null);
 
-  useEffect(() => {
-    if (medicine) {
-      setValue("name", medicine.name);
-      setValue("manufacturer", medicine.manufacturer);
-      setValue("category", medicine.category);
-      setValue("price", medicine.price);
-      setValue("stock_quantity", medicine.stock_quantity);
-      setValue("expiry_date", medicine.expiry_date);
-      setValue("dosage", medicine.dosage);
-      setValue("description", medicine.description);
-    }
-    setIsLoading(false);
-  }, [medicine, setValue]);
-
-  const updateForm = async (data) => {
-    setIsSubmitting(true);
-    const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-
-    const requestOptions = {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JSON.parse(token)}`,
-      },
-      body: JSON.stringify(data),
-    };
-
+  const submitForm = async (data) => {
     try {
-      const response = await fetch(
-        `/medicines/medications/${medicine.id}`,
-        requestOptions
-      );
+      const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+
+      const body = {
+        name: data.name,
+        manufacturer: data.manufacturer,
+        category: data.category,
+        price: parseFloat(data.price),
+        stock_quantity: parseInt(data.stock_quantity),
+        expiry_date: data.expiry_date,
+        description: data.description,
+      };
+
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+        body: JSON.stringify(body),
+      };
+
+      const response = await fetch("/medicines/medications", requestOptions);
       const responseData = await response.json();
 
       if (response.ok) {
+        setServerResponse(responseData.message);
         reset();
         window.location.reload();
       } else {
-        setServerResponse("Error updating medicine. Please try again later.");
-        console.error("Error updating medicine: " + responseData.message);
+        serverResponse(responseData.message);
+        throw new Error(responseData.message || "Failed to create medicine");
       }
     } catch (error) {
-      setServerResponse("Error updating medicine. Please try again later.");
-      console.error("Error updating medicine:", error);
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error creating medicine:", error);
+      setServerResponse(error.message);
     }
   };
-
-  if (isLoading) {
-    return <Spinner animation="border" />;
-  }
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
@@ -81,7 +63,7 @@ const UpdateMedicine = ({ show, medicine }) => {
         </Alert>
       )}
 
-      <Form onSubmit={handleSubmit(updateForm)}>
+      <Form onSubmit={handleSubmit(submitForm)}>
         <Row>
           <Col md={6} className="mb-3">
             <Form.Group>
@@ -129,7 +111,7 @@ const UpdateMedicine = ({ show, medicine }) => {
             <Form.Group>
               <Form.Label>Price</Form.Label>
               <Form.Control
-                type="text"
+                type="number"
                 placeholder="Enter Price"
                 {...register("price", { required: true })}
               />
@@ -143,7 +125,7 @@ const UpdateMedicine = ({ show, medicine }) => {
             <Form.Group>
               <Form.Label>Stock Quantity</Form.Label>
               <Form.Control
-                type="text"
+                type="number"
                 placeholder="Enter Stock Quantity"
                 {...register("stock_quantity", { required: true })}
               />
@@ -167,17 +149,6 @@ const UpdateMedicine = ({ show, medicine }) => {
             </Form.Group>
           </Col>
 
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Dosage</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Dosage"
-                {...register("dosage")}
-              />
-            </Form.Group>
-          </Col>
-
           <Col md={12} className="mb-3">
             <Form.Group>
               <Form.Label>Description</Form.Label>
@@ -192,13 +163,12 @@ const UpdateMedicine = ({ show, medicine }) => {
             </Form.Group>
           </Col>
         </Row>
-
-        <Button variant="primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Updating..." : "Update"}
+        <Button variant="primary" type="submit">
+          Submit
         </Button>
       </Form>
     </div>
   );
 };
 
-export default UpdateMedicine;
+export default CreateUser;

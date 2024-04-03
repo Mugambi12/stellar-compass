@@ -48,7 +48,7 @@ const Invoices = () => {
   const handleShow = () => setShow(true);
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       <Card.Title className="mt-3 mb-2">Invoice Records</Card.Title>
       <Card.Subtitle className="mb-3 text-muted">
         List of all completed invoices

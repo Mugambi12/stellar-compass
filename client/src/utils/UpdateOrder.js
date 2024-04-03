@@ -115,7 +115,7 @@ const UpdateOrder = ({ show, order }) => {
       <Form onSubmit={handleSubmit(updateForm)}>
         <Row>
           <Col md={6} className="mb-3">
-            <Form.Group className="mb-3">
+            <Form.Group>
               <Form.Label>User</Form.Label>
               <Form.Select {...register("user_id", { required: true })}>
                 <option value="">Select User</option>
@@ -132,7 +132,7 @@ const UpdateOrder = ({ show, order }) => {
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group className="mb-3">
+            <Form.Group>
               <Form.Label>Medicine</Form.Label>
               <Form.Select {...register("medication_id", { required: true })}>
                 <option value="">Select Medicine</option>
@@ -149,7 +149,7 @@ const UpdateOrder = ({ show, order }) => {
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group className="mb-3">
+            <Form.Group>
               <Form.Label>Quantity</Form.Label>
               <Form.Control
                 type="text"
@@ -163,7 +163,7 @@ const UpdateOrder = ({ show, order }) => {
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group className="mb-3">
+            <Form.Group>
               <Form.Label>Order Type</Form.Label>
               <Form.Select {...register("order_type", { required: true })}>
                 <option value="">Select Order Type</option>

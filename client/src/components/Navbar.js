@@ -5,40 +5,40 @@ import { useAuth, logout } from "../auth";
 const LoggedInLinks = () => {
   return (
     <>
-      <li className="nav-item me-2">
-        <Link className="nav-link active" aria-current="page" to="/users">
+      <li className="nav-item">
+        <Link className="nav-link" to="/users">
           Users
         </Link>
       </li>
 
-      <li className="nav-item me-2">
-        <Link className="nav-link active" aria-current="page" to="/medicines">
+      <li className="nav-item">
+        <Link className="nav-link" to="/medicines">
           Medicines
         </Link>
       </li>
 
-      <li className="nav-item me-2">
-        <Link className="nav-link active" to="/orders">
+      <li className="nav-item">
+        <Link className="nav-link" to="/orders">
           Orders
         </Link>
       </li>
 
-      <li className="nav-item me-2">
-        <Link className="nav-link active" to="/payments">
-          Payment
+      <li className="nav-item">
+        <Link className="nav-link" to="/payments">
+          Payments
         </Link>
       </li>
 
-      <li className="nav-item me-2 ms-2">
-        <a
-          className="nav-link active  btn btn-outline-danger btn-sm"
-          href="/"
+      <li className="nav-item mx-3">
+        <Link
+          className="nav-link btn btn-outline-primary btn-sm"
+          to="/"
           onClick={() => {
             logout();
           }}
         >
           Logout
-        </a>
+        </Link>
       </li>
     </>
   );
@@ -47,14 +47,17 @@ const LoggedInLinks = () => {
 const LoggedOutLinks = () => {
   return (
     <>
-      <li className="nav-item me-2">
-        <Link className="nav-link active" to="/">
+      <li className="nav-item">
+        <Link className="nav-link btn btn-outline-primary btn-sm" to="/">
           Login
         </Link>
       </li>
 
-      <li className="nav-item me-2">
-        <Link className="nav-link active" to="/register">
+      <li className="nav-item">
+        <Link
+          className="nav-link btn btn-outline-success btn-sm"
+          to="/register"
+        >
           Register
         </Link>
       </li>
@@ -66,8 +69,8 @@ const Navbar = () => {
   const [logged] = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
-      <div className="container-fluid mx-3">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div className="container-fluid">
         <Link className="navbar-brand" to="#">
           Utibu Health
         </Link>
@@ -82,11 +85,8 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div
-          className="collapse navbar-collapse justify-content-end"
-          id="navbarNav"
-        >
-          <ul className="navbar-nav">
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto">
             {logged ? <LoggedInLinks /> : <LoggedOutLinks />}
           </ul>
         </div>
