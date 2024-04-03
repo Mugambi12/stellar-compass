@@ -81,7 +81,7 @@ const UpdateOrder = ({ show, order }) => {
         window.location.reload();
       } else {
         setserverResponse("Error updating order. Please try again later.");
-        console.error("Error updating order:", responseData);
+        console.error("Error updating order: " + responseData.message);
       }
     } catch (error) {
       setserverResponse("Error updating order. Please try again later.");
