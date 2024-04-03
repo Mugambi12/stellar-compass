@@ -2,7 +2,11 @@ import React from "react";
 import { Modal } from "react-bootstrap";
 
 const CenterModal = ({ show, handleClose, title, children }) => {
-  const modalSize = title.toLowerCase().includes("delete") ? "" : "lg";
+  const modalSize =
+    title.toLowerCase().includes("delete") ||
+    title.toLowerCase().includes("cancel")
+      ? ""
+      : "lg";
   const centerModal = !title.toLowerCase().includes("delete");
 
   return (

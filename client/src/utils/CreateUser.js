@@ -17,12 +17,13 @@ const CreateUser = ({ show }) => {
 
       const body = {
         name: data.name,
-        manufacturer: data.manufacturer,
-        category: data.category,
-        price: parseFloat(data.price),
-        stock_quantity: parseInt(data.stock_quantity),
-        expiry_date: data.expiry_date,
-        description: data.description,
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        address: data.address,
+        contact_info: data.contact_info,
+        role: data.role,
+        address: data.address,
       };
 
       const requestOptions = {
@@ -34,7 +35,7 @@ const CreateUser = ({ show }) => {
         body: JSON.stringify(body),
       };
 
-      const response = await fetch("/medicines/medications", requestOptions);
+      const response = await fetch("/users/users", requestOptions);
       const responseData = await response.json();
 
       if (response.ok) {
@@ -43,10 +44,10 @@ const CreateUser = ({ show }) => {
         window.location.reload();
       } else {
         serverResponse(responseData.message);
-        throw new Error(responseData.message || "Failed to create medicine");
+        throw new Error(responseData.message || "Failed to create user");
       }
     } catch (error) {
-      console.error("Error creating medicine:", error);
+      console.error("Error creating user:", error);
       setServerResponse(error.message);
     }
   };
@@ -67,98 +68,99 @@ const CreateUser = ({ show }) => {
         <Row>
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Full Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter Name"
-                {...register("name", { required: true })}
+                {...register("name")}
               />
-              {errors.name && (
-                <p className="text-danger small">Name is required</p>
-              )}
             </Form.Group>
           </Col>
 
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Manufacturer</Form.Label>
+              <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Manufacturer"
-                {...register("manufacturer", { required: true })}
+                placeholder="Enter Username"
+                {...register("username", { required: true })}
               />
-              {errors.manufacturer && (
-                <p className="text-danger small">Manufacturer is required</p>
+              {errors.username && (
+                <p className="text-danger small">Username is required</p>
               )}
             </Form.Group>
           </Col>
 
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Category</Form.Label>
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter Email"
+                {...register("email", { required: true })}
+              />
+              {errors.email && (
+                <p className="text-danger small">Email is required</p>
+              )}
+            </Form.Group>
+          </Col>
+
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter Password"
+                {...register("password", { required: true })}
+              />
+              {errors.password && (
+                <p className="text-danger small">Password is required</p>
+              )}
+            </Form.Group>
+          </Col>
+
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label>Contact Info</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Category"
-                {...register("category", { required: true })}
+                placeholder="Enter Contact Info"
+                {...register("contact_info")}
               />
-              {errors.category && (
-                <p className="text-danger small">Category is required</p>
+
+              {errors.contact_info && (
+                <p className="text-danger small">Contact Info is required</p>
               )}
             </Form.Group>
           </Col>
 
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Price</Form.Label>
+              <Form.Label>Role</Form.Label>
               <Form.Control
-                type="number"
-                placeholder="Enter Price"
-                {...register("price", { required: true })}
-              />
-              {errors.price && (
-                <p className="text-danger small">Price is required</p>
-              )}
-            </Form.Group>
-          </Col>
-
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Stock Quantity</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter Stock Quantity"
-                {...register("stock_quantity", { required: true })}
-              />
-              {errors.stock_quantity && (
-                <p className="text-danger small">Stock Quantity is required</p>
-              )}
-            </Form.Group>
-          </Col>
-
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Expiry Date</Form.Label>
-              <Form.Control
-                type="date"
-                placeholder="Enter Expiry Date"
-                {...register("expiry_date", { required: true })}
-              />
-              {errors.expiry_date && (
-                <p className="text-danger small">Expiry Date is required</p>
+                as="select"
+                {...register("role", { required: true })}
+              >
+                <option value="">Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
+              </Form.Control>
+              {errors.role && (
+                <p className="text-danger small">Role is required</p>
               )}
             </Form.Group>
           </Col>
 
           <Col md={12} className="mb-3">
             <Form.Group>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Address</Form.Label>
               <Form.Control
-                as="textarea"
-                placeholder="Enter Description"
-                {...register("description", { required: true })}
+                as={"textarea"}
+                placeholder="Enter Address"
+                {...register("address")}
               />
-              {errors.description && (
-                <p className="text-danger small">Description is required</p>
+              {errors.address && (
+                <p className="text-danger small">Address is required</p>
               )}
             </Form.Group>
           </Col>

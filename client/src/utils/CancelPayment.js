@@ -50,9 +50,12 @@ const CancelPayment = ({ show, payment }) => {
 
       <Form onSubmit={handleSubmit(handleCancelPayment)}>
         <p>Are you sure you want to cancel payment {payment.id}?</p>
-        <Button variant="danger" type="submit">
-          Cancel
-        </Button>
+
+        <div className="text-end">
+          <Button variant="danger" type="submit">
+            Cancel
+          </Button>
+        </div>
       </Form>
     </div>
   );

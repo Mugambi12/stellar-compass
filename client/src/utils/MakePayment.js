@@ -78,9 +78,11 @@ const MakePayment = ({ show, payment }) => {
       <Form onSubmit={handleSubmit(updateForm)}>
         <p>This is for payment for order {payment.id} </p>
 
-        <Button variant="primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Updating..." : "Update"}
-        </Button>
+        <div className="text-end">
+          <Button variant="primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Updating..." : "Update"}
+          </Button>
+        </div>
       </Form>
     </div>
   );

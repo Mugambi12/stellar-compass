@@ -47,7 +47,7 @@ const DeleteUser = ({ show, user }) => {
 
       <Form onSubmit={handleSubmit(DeleteUser)}>
         {/* Display confirmation message */}
-        <p>Are you sure you want to delete user {user.id}?</p>
+        <p>Are you sure you want to delete user {user.username}?</p>
         {/* Button to submit the form */}
         <Button variant="danger" type="submit">
           Delete

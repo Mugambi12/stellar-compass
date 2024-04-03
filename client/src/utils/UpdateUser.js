@@ -1,3 +1,4 @@
+// UpdateUser.js
 import React, { useState, useEffect } from "react";
 import { Form, Button, Spinner, Alert, Row, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
@@ -19,11 +20,11 @@ const UpdateUser = ({ show, user }) => {
     if (user) {
       setValue("name", user.name);
       setValue("email", user.email);
-      setValue("password", user.password);
       setValue("contact_info", user.contact_info);
       setValue("role", user.role);
-      setValue("is_active", user.is_active.toString());
+      setValue("is_active", user.is_active);
       setValue("address", user.address);
+      setValue("password", user.password);
     }
 
     setIsLoading(false);
@@ -109,34 +110,6 @@ const UpdateUser = ({ show, user }) => {
 
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Role</Form.Label>
-              <Form.Select {...register("role", { required: true })}>
-                <option value="">Select Role</option>
-                <option value="admin">Admin</option>
-                <option value="customer">Customer</option>
-              </Form.Select>
-              {errors.role && (
-                <p className="text-danger small">Role is required</p>
-              )}
-            </Form.Group>
-          </Col>
-
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Is Active</Form.Label>
-              <Form.Select {...register("is_active", { required: true })}>
-                <option value="">Select Status</option>
-                <option value="true">Active</option>
-                <option value="false">Passive</option>
-              </Form.Select>
-              {errors.is_active && (
-                <p className="text-danger small">Is Active is required</p>
-              )}
-            </Form.Group>
-          </Col>
-
-          <Col md={6} className="mb-3">
-            <Form.Group>
               <Form.Label>Contact Info</Form.Label>
               <Form.Control
                 type="text"
@@ -151,14 +124,53 @@ const UpdateUser = ({ show, user }) => {
 
           <Col md={6} className="mb-3">
             <Form.Group>
+              <Form.Label>Role</Form.Label>
+              <Form.Control
+                as="select"
+                {...register("role", { required: true })}
+              >
+                <option value="">Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
+              </Form.Control>
+              {errors.role && (
+                <p className="text-danger small">Role is required</p>
+              )}
+            </Form.Group>
+          </Col>
+
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label>Is Active</Form.Label>
+              <Form.Control
+                as="select"
+                {...register("is_active", { required: true })}
+              >
+                <option value="">Select Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </Form.Control>
+              {errors.is_active && (
+                <p className="text-danger small">Status is required</p>
+              )}
+            </Form.Group>
+          </Col>
+
+          <Col md={6} className="mb-3">
+            <Form.Group>
               <Form.Label>Password</Form.Label>
               <Form.Control
-                type="password"
+                type="text"
                 placeholder="Enter Password"
-                {...register("password", { required: true })}
+                {...register("password", { required: true, minLength: 8 })}
               />
               {errors.password && (
                 <p className="text-danger small">Password is required</p>
+              )}
+              {errors.password && errors.password.type === "minLength" && (
+                <p className="text-danger small">
+                  Password must be at least 8 characters
+                </p>
               )}
             </Form.Group>
           </Col>
