@@ -38,7 +38,7 @@ Utibu Health's mobile app provides registered patients with the convenience of o
 
 Before running the application, ensure you have the following prerequisites installed:
 
-- Node.js and npm (for client-side)
+- Node.js (React JS) and npm (for client-side)
 - Python and pip (for server-side)
 
 Follow these steps to set up and run the project:
@@ -106,7 +106,7 @@ Once the application is installed and running, registered patients can log in to
 
 ## Contributing
 
-Contributions to the Utibu Health project are welcome! Please follow the guidelines outlined in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+Contributions to the Utibu Health project are welcome!
 
 ## License
 
