@@ -34,7 +34,7 @@ const centerModal = (props) => {
   );
 };
 
-const Sales = () => {
+const Invoices = () => {
   const [sales, setSales] = useState([]);
 
   useEffect(() => {
@@ -94,4 +94,4 @@ const Sales = () => {
   );
 };
 
-export default Sales;
+export default Invoices;

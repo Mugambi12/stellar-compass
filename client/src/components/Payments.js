@@ -96,7 +96,7 @@ const Payments = () => {
           </div>
         </Col>
         <Col xs={4} className="text-end">
-          <Link to="/sales"> View Invoices </Link>
+          <Link to="/invoices"> View Invoices </Link>
         </Col>
       </Row>
 

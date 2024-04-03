@@ -9,7 +9,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Medicines from "./components/Medicines";
 import Orders from "./components/OrdersMade";
-import Sales from "./components/Sales";
+import Invoices from "./components/Invoices";
 import Payments from "./components/Payments";
 import Register from "./components/Register";
 import Users from "./components/Users";
@@ -23,7 +23,7 @@ const App = () => {
           <Route path="/users" element={<Users />} />
           <Route path="/medicines" element={<Medicines />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/sales" element={<Sales />} />
+          <Route path="/invoices" element={<Invoices />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/register" element={<Register />} />{" "}
           <Route path="/" element={<Login />} />
