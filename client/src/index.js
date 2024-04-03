@@ -6,7 +6,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import Navbar from "./components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./components/Home";
+import Login from "./components/Login";
 import Medicines from "./components/Medicines";
 import Orders from "./components/OrdersMade";
 import Sales from "./components/Sales";
