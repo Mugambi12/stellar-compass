@@ -21,32 +21,24 @@ const DeleteOrder = ({ show, order }) => {
         `/orders/orders/${order.id}`,
         requestOptions
       );
-      const responseData = await response.json();
 
-      if (response.ok) {
+      // Check if response status is 204 (No Content) which indicates successful deletion
+      if (response.status === 204) {
         reset();
         window.location.reload();
       } else {
-        setServerResponse("Error deleting order. Please try again later.");
-        console.error("Error deleting order:", responseData);
+        // If response status is not 204, handle error
+        const responseData = await response.json();
+        setServerResponse("Error deleting order: " + responseData.message);
       }
     } catch (error) {
       setServerResponse("Error deleting order. Please try again later.");
-      console.error("Error deleting order:", error);
     }
   };
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
-      {serverResponse && (
-        <Alert
-          variant={
-            serverResponse.includes("successfully") ? "success" : "danger"
-          }
-        >
-          {serverResponse}
-        </Alert>
-      )}
+      {serverResponse && <Alert variant="danger">{serverResponse}</Alert>}
 
       <Form onSubmit={handleSubmit(deleteOrder)}>
         {/* Display confirmation message */}
