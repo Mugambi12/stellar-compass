@@ -149,9 +149,13 @@ const CreateNewOrder = ({ show }) => {
             </Form.Group>
           </Col>
         </Row>
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
+
+        <Row>
+          <Button variant="primary">Pay Now</Button>
+          <Button variant="success" type="submit">
+            Pay Later
+          </Button>
+        </Row>
       </Form>
     </div>
   );

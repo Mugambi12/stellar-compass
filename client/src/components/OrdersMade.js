@@ -35,7 +35,6 @@ const OrdersMade = () => {
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Handle error
       }
     };
 
@@ -61,8 +60,6 @@ const OrdersMade = () => {
     const user = users.find((user) => user.id === userId);
     return user ? user.username : "Unknown User";
   };
-
-  // Rest of the component remains unchanged
 
   const getModalTitle = (type) => {
     switch (type) {
@@ -114,7 +111,6 @@ const OrdersMade = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
             <th>User Name</th>
             <th>Medicine Name</th>
             <th>Quantity</th>
@@ -126,11 +122,9 @@ const OrdersMade = () => {
           </tr>
         </thead>
         <tbody>
-          {/* Loop through orders */}
           {ordersMade.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
-              <td>{order.name}</td>
               <td>{getUserName(order.user_id)}</td>
               <td>{getMedicineName(order.medication_id)}</td>
               <td>{order.quantity}</td>

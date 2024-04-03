@@ -49,9 +49,9 @@ const Sales = () => {
 
   return (
     <div className="container">
-      <Card.Title className="mt-3 mb-2">Sales Records</Card.Title>
+      <Card.Title className="mt-3 mb-2">Invoice Records</Card.Title>
       <Card.Subtitle className="mb-3 text-muted">
-        List of all completed sales
+        List of all completed invoices
       </Card.Subtitle>
 
       <Table responsive borderless hover variant="light">

@@ -1,69 +1,121 @@
 import React, { useEffect, useState } from "react";
-import { Table, Card, Button, Modal } from "react-bootstrap";
-import { EyeOutline } from "react-ionicons";
-
-const centerModal = (props) => {
-  return (
-    <Modal
-      show={props.show}
-      onHide={props.handleClose}
-      backdrop="static"
-      keyboard={false}
-      {...props}
-      size="lg"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Payments Modal</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
-        I will not close if you click outside me. Do not even try to press the
-        escape key.
-      </Modal.Body>
-
-      <Modal.Footer className="justify-content-between">
-        <Button size="sm" variant="secondary" onClick={props.handleClose}>
-          Close
-        </Button>
-        <Button size="sm" variant="primary">
-          Understood
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
+import { Link } from "react-router-dom";
+import { Spinner, Table, Row, Col, Button } from "react-bootstrap";
+import { CashOutline, CloseCircleOutline } from "react-ionicons";
+import CenterModal from "../utils/Modal";
+import MakePayment from "../utils/MakePayment";
+import CancelPayment from "../utils/CancelPayment";
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
+  const [medicines, setMedicines] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [modalType, setModalType] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    fetch("/payments/payments")
-      .then((response) => response.json())
-      .then((data) => setPayments(data));
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch("/orders/orders");
+        const data = await response.json();
+        setPayments(data);
+      } catch (error) {
+        console.error("Error fetching payments:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPayments();
   }, []);
 
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  useEffect(() => {
+    const fetchAdditionalData = async () => {
+      try {
+        const [medicinesResponse, usersResponse] = await Promise.all([
+          fetch("/medicines/medications"),
+          fetch("/users/users"),
+        ]);
+        const [medicinesData, usersData] = await Promise.all([
+          medicinesResponse.json(),
+          usersResponse.json(),
+        ]);
+        setMedicines(medicinesData);
+        setUsers(usersData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchAdditionalData();
+  }, []);
+
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  const handleShow = (type, payment) => {
+    setSelectedPayment(payment);
+    setModalType(type);
+    setShow(true);
+  };
+
+  const handlePay = (type, payment) => {
+    setSelectedPayment(payment);
+    setModalType(type);
+    setShow(true);
+    // Add logic for linking to the payment API
+    console.log("Redirect to payment API");
+  };
+
+  const getMedicineName = (medicationId) => {
+    const medicine = medicines.find((medicine) => medicine.id === medicationId);
+    return medicine ? medicine.name : "Unknown Medicine";
+  };
+
+  const getUserName = (userId) => {
+    const user = users.find((user) => user.id === userId);
+    return user ? user.username : "Unknown User";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        <Spinner animation="border" /> Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="container">
-      <Card.Title className="mt-3 mb-2">Payments</Card.Title>
-      <Card.Subtitle className="mb-3 text-muted">
-        List of all payment transactions
-      </Card.Subtitle>
+      <Row className="align-items-center mb-4">
+        <Col xs={8}>
+          <div className="mb-2">
+            <h4 className="mt-3 mb-1">Payments</h4>
+            <p className="text-muted mb-0">List of pending payments</p>
+          </div>
+        </Col>
+        <Col xs={4} className="text-end">
+          <Link to="/sales"> View Invoices </Link>
+        </Col>
+      </Row>
 
-      <Table responsive borderless hover variant="light">
+      <Table
+        responsive
+        borderless
+        hover
+        variant="light"
+        className="text-center"
+      >
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Invoice ID</th>
-            <th>Amount</th>
-            <th>Payment Method</th>
-            <th>Transaction ID</th>
-            <th>Status</th>
+            <th>ID</th>
+            <th>User Name</th>
+            <th>Medicine Name</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Order Status</th>
+            <th>Payment</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -71,22 +123,48 @@ const Payments = () => {
           {payments.map((payment) => (
             <tr key={payment.id}>
               <td>{payment.id}</td>
-              <td>{payment.name}</td>
-              <td>{payment.invoice_id}</td>
-              <td>{payment.amount}</td>
-              <td>{payment.payment_method}</td>
-              <td>{payment.transaction_id}</td>
+              <td>{getUserName(payment.user_id)}</td>
+              <td>{getMedicineName(payment.medication_id)}</td>
+              <td>{payment.quantity}</td>
+              <td>{payment.total_price}</td>
               <td>{payment.status}</td>
-
-              <td className="text-center">
-                <EyeOutline color={"#0096ff"} onClick={handleShow} />
+              <td>{payment.status}</td>
+              <td>
+                <CashOutline
+                  className="me-1"
+                  color={"#00cc00"}
+                  onClick={() => handlePay("pay", payment)}
+                  style={{ cursor: "pointer" }}
+                />
+                <CloseCircleOutline
+                  className="ms-2"
+                  color={"#ff0000"}
+                  onClick={() => handleShow("cancel", payment)}
+                  style={{ cursor: "pointer" }}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      {centerModal({ show, handleClose })}
+      {modalType && (
+        <CenterModal
+          show={show}
+          handleClose={handleClose}
+          title={modalType === "pay" ? "Make Payment" : "Cancel Payment"}
+        >
+          {modalType === "pay" && (
+            <MakePayment show={modalType === "pay"} payment={selectedPayment} />
+          )}
+          {modalType === "cancel" && (
+            <CancelPayment
+              show={modalType === "cancel"}
+              payment={selectedPayment}
+            />
+          )}
+        </CenterModal>
+      )}
     </div>
   );
 };
