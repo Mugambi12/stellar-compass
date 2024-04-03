@@ -9,10 +9,10 @@ user_ns = Namespace('users', description='User Operations')
 user_model = user_ns.model(
     'User', {
         'id': fields.Integer,
+        'name': fields.String,
         'username': fields.String,
         'email': fields.String,
         'password': fields.String,
-        'name': fields.String,
         'address': fields.String,
         'contact_info': fields.String,
         'role': fields.String,

@@ -26,19 +26,17 @@ button {
 button:focus {
   box-shadow: none !important;
 }
-/*
 input,
 input:focus,
 input:active,
 select,
 textarea {
-  border: none !important;
-  border: 1px solid #0000004d !important;
-  border-top: none !important;
+  font-size: 15px !important;
+  padding: 8px 16px !important;
+  border: 1px solid rgba(255, 166, 0, 0.5) !important;
   outline: none !important;
   box-shadow: none !important;
 }
-*/
 body {
   font-family: "Poppins", sans-serif;
   background-color: aliceblue;
