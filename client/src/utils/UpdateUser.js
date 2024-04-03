@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Spinner, Alert, Row, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import PasswordMask from "react-password-mask";
 
 const UpdateUser = ({ show, user }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -157,23 +156,6 @@ const UpdateUser = ({ show, user }) => {
                 type="password"
                 placeholder="Enter Password"
                 {...register("password", { required: true })}
-              />
-              {errors.password && (
-                <p className="text-danger small">Password is required</p>
-              )}
-            </Form.Group>
-          </Col>
-
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Password</Form.Label>
-              <PasswordMask
-                id="password"
-                name="password"
-                placeholder="Enter Password"
-                value=""
-                onChange={(e) => setValue("password", e.target.value)}
-                buttonClassName="btn btn-outline-secondary"
               />
               {errors.password && (
                 <p className="text-danger small">Password is required</p>
