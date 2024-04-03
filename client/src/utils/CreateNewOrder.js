@@ -6,6 +6,7 @@ const CreateNewOrder = ({ show }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const [medicines, setMedicines] = useState([]);
@@ -60,6 +61,11 @@ const CreateNewOrder = ({ show }) => {
 
       const response = await fetch("/orders/orders", requestOptions);
       const responseData = await response.json();
+
+      if (response.ok) {
+        reset();
+        window.location.reload();
+      }
 
       setServerResponse(responseData.message);
     } catch (error) {

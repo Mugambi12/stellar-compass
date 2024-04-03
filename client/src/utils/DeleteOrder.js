@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
+import { useForm } from "react-hook-form";
 
-const DeleteOrder = ({ show }) => {
+const DeleteOrder = ({ show, order }) => {
   const [serverResponse, setServerResponse] = useState(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
 
-  const handleDelete = async () => {
-    // Add your delete order logic here
-    setServerResponse("Order deleted successfully!");
+  const deleteForm = async (data) => {
+    console.log(data);
   };
 
   return (
@@ -21,9 +27,11 @@ const DeleteOrder = ({ show }) => {
         </Alert>
       )}
 
-      <Button variant="danger" onClick={handleDelete}>
-        Delete
-      </Button>
+      <Form onSubmit={handleSubmit(deleteForm)}>
+        {/* Add your form fields for updating orders */}
+        <p> Are you sure you want to delete {order.id}?</p>
+        <Button variant="danger">Delete</Button>
+      </Form>
     </div>
   );
 };

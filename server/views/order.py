@@ -67,7 +67,7 @@ class OrderResource(Resource):
 
 
 # Resource for handling individual orders
-@order_ns.route('/order/<int:id>')
+@order_ns.route('/orders/<int:id>')
 class OrderDetailResource(Resource):
 
     @order_ns.marshal_with(order_model)
@@ -79,7 +79,6 @@ class OrderDetailResource(Resource):
     @order_ns.expect(order_model)
     @jwt_required()
     def put(self, id):
-        """Update an order by id"""
         data = request.get_json()
         user_id = data.get('user_id')
         medication_id = data.get('medication_id')
@@ -87,18 +86,28 @@ class OrderDetailResource(Resource):
 
         order_to_update = Order.query.get_or_404(id)
 
-        # Check medication availability
-        medication = Medication.query.get_or_404(medication_id)
-        if medication.stock_quantity < quantity:
-            abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
+        old_medication_id = order_to_update.medication_id
+        old_medication = Medication.query.get_or_404(old_medication_id)
 
-        total_price = quantity * medication.price
+        if medication_id == old_medication_id:
+            if quantity != order_to_update.quantity:
+                # Adjust stock for existing medication if only quantity is updated
+                old_medication.stock_quantity += order_to_update.quantity - quantity
+                old_medication.save()
+        else:
+            # Adjust stock for old medication
+            old_medication.stock_quantity += order_to_update.quantity
+            old_medication.save()
 
-        # Adjust medication stock
-        if order_to_update.quantity > quantity:
-            medication.stock_quantity += order_to_update.quantity - quantity
-        elif order_to_update.quantity < quantity:
-            medication.stock_quantity -= quantity - order_to_update.quantity
+            new_medication = Medication.query.get_or_404(medication_id)
+            if new_medication.stock_quantity < quantity:
+                abort(400, message=f'Insufficient stock for the new medication. There are only {new_medication.stock_quantity} units available')
+
+            # Adjust stock for new medication
+            new_medication.stock_quantity -= quantity
+            new_medication.save()
+
+        total_price = quantity * new_medication.price if medication_id != old_medication_id else quantity * old_medication.price
 
         # Update order
         order_to_update.update(**data, total_price=total_price)
@@ -114,23 +123,27 @@ class OrderDetailResource(Resource):
     @jwt_required()
     def delete(self, id):
         """Delete an order by id"""
-        try:
-            order_to_delete = Order.query.get_or_404(id)
+        order_to_delete = Order.query.get_or_404(id)
 
-            # Delete corresponding sale first
-            sale_to_delete = SaleInvoice.query.filter_by(customer_order_id=order_to_delete.id).first()
-            if sale_to_delete:
-                sale_to_delete.delete()
+        # Check if order id exists
+        if not order_to_delete:
+            abort(404, message='Order not found')
 
-            # Update medication stock after ensuring consistency
-            medication = Medication.query.get_or_404(order_to_delete.medication_id)
-            medication.stock_quantity += order_to_delete.quantity
-            medication.save()
+        # Check if order has been sold
+        if order_to_delete.status != 'Confirmed':
+            abort(400, message='Cannot delete a sold order')
 
-            # Finally, delete the order
-            order_to_delete.delete()
+        # Delete corresponding sale first
+        sale_to_delete = SaleInvoice.query.filter_by(customer_order_id=order_to_delete.id).first()
+        if sale_to_delete:
+            sale_to_delete.delete()
 
-            return jsonify({'message': 'Order deleted successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        # Update medication stock after ensuring consistency
+        medication = Medication.query.get_or_404(order_to_delete.medication_id)
+        medication.stock_quantity += order_to_delete.quantity
+        medication.save()
+
+        # Finally, delete the order
+        order_to_delete.delete()
+
+        return jsonify({'message': 'Order deleted successfully'})

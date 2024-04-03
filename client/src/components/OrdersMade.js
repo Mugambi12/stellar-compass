@@ -1,5 +1,6 @@
+// OrdersMade.js
 import React, { useEffect, useState } from "react";
-import { Table, Row, Col, Button } from "react-bootstrap";
+import { Table, Row, Col } from "react-bootstrap";
 import { EyeOutline, AddOutline, TrashOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
 import CreateNewOrder from "../utils/CreateNewOrder";
@@ -9,6 +10,8 @@ import DeleteOrder from "../utils/DeleteOrder";
 const OrdersMade = () => {
   const [ordersMade, setOrdersMade] = useState([]);
   const [modalType, setModalType] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     fetch("/orders/orders")
@@ -16,11 +19,15 @@ const OrdersMade = () => {
       .then((data) => setOrdersMade(data));
   }, []);
 
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = (type) => {
-    setShow(true);
+  const handleClose = () => {
+    setShow(false);
+    window.location.reload();
+  };
+
+  const handleShow = (type, order) => {
+    setSelectedOrder(order);
     setModalType(type);
+    setShow(true);
   };
 
   const getModalTitle = (type) => {
@@ -90,12 +97,17 @@ const OrdersMade = () => {
               <td>
                 <EyeOutline
                   style={{ cursor: "pointer", color: "#0096ff" }}
-                  onClick={() => handleShow("update")}
+                  onClick={() => {
+                    handleShow("update", order);
+                  }}
                 />
+
                 <TrashOutline
                   className="ms-2"
                   style={{ cursor: "pointer", color: "#ff0000" }}
-                  onClick={() => handleShow("delete")}
+                  onClick={() => {
+                    handleShow("delete", order);
+                  }}
                 />
               </td>
             </tr>
@@ -109,13 +121,14 @@ const OrdersMade = () => {
           handleClose={handleClose}
           title={getModalTitle(modalType)}
         >
-          {/* Modal content based on modalType */}
           {modalType === "add" && <CreateNewOrder show={modalType === "add"} />}
+
           {modalType === "update" && (
-            <UpdateOrder show={modalType === "update"} />
+            <UpdateOrder show={modalType === "update"} order={selectedOrder} />
           )}
+
           {modalType === "delete" && (
-            <DeleteOrder show={modalType === "delete"} />
+            <DeleteOrder show={modalType === "delete"} order={selectedOrder} />
           )}
         </CenterModal>
       )}
