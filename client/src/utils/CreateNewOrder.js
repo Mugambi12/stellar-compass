@@ -77,13 +77,17 @@ const CreateNewOrder = ({ show }) => {
   };
 
   const totalPrice = 300;
+  const user_id = 1;
+  const medication_id = 1;
+  const quantity = 10;
+  const order_type = 1;
   const email = "apogen@mail.com";
-  const phone_number = "08012345678";
-  const name = "Apogen Pharmacy";
+  const phone_number = "0700123123";
+  const name = "john doe";
+
   const title = "Payment to Apogen Pharmacy";
   const description = "Payment for items in submitForm data";
-  const logo =
-    "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg";
+  const logo = "shop-log.jpg";
 
   const config = {
     public_key: "FLWPUBK_TEST-04ca5c2cd148e5803fb311c0bfd1c511-X",
@@ -92,6 +96,10 @@ const CreateNewOrder = ({ show }) => {
     currency: "KES",
     payment_options: "card,mobilemoney,ussd",
     customer: {
+      user_id: user_id,
+      medication_id: medication_id,
+      quantity: quantity,
+      order_type: order_type,
       email: email,
       phone_number: phone_number,
       name: name,
