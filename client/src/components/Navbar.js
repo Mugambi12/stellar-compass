@@ -6,8 +6,14 @@ const LoggedInLinks = () => {
   return (
     <>
       <li className="nav-item">
-        <Link className="nav-link" to="/users">
-          Users
+        <Link className="nav-link" to="/orders">
+          Orders
+        </Link>
+      </li>
+
+      <li className="nav-item">
+        <Link className="nav-link" to="/payments">
+          Payments
         </Link>
       </li>
 
@@ -18,14 +24,8 @@ const LoggedInLinks = () => {
       </li>
 
       <li className="nav-item">
-        <Link className="nav-link" to="/orders">
-          Orders
-        </Link>
-      </li>
-
-      <li className="nav-item">
-        <Link className="nav-link" to="/payments">
-          Payments
+        <Link className="nav-link" to="/users">
+          Users
         </Link>
       </li>
 
@@ -69,7 +69,7 @@ const Navbar = () => {
   const [logged] = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <div className="container-fluid">
         <Link className="navbar-brand" to="#">
           Utibu Health

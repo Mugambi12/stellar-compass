@@ -28,7 +28,7 @@ const Login = () => {
       .then((data) => {
         if (data.access_token) {
           login(data.access_token);
-          navigate("/users");
+          navigate("/orders");
         } else {
           setServerResponse(data.message);
           setShow(true);
