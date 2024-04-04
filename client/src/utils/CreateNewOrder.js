@@ -13,27 +13,6 @@ const CreateNewOrder = ({ show }) => {
   const [medicines, setMedicines] = useState([]);
   const [users, setUsers] = useState([]);
   const [serverResponse, setServerResponse] = useState(null);
-  const [orderData, setOrderData] = useState(null);
-
-  const config = {
-    public_key: "FLWPUBK-**************************-X",
-    tx_ref: Date.now(),
-    amount: 100,
-    currency: "NGN",
-    payment_options: "card,mobilemoney,ussd",
-    customer: {
-      email: "user@gmail.com",
-      phone_number: "070********",
-      name: "john doe",
-    },
-    customizations: {
-      title: "my Payment Title",
-      description: "Payment for items in submitForm",
-      logo: "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg",
-    },
-  };
-
-  const handleFlutterPayment = useFlutterwave(config);
 
   useEffect(() => {
     fetchMedicines();
@@ -60,7 +39,7 @@ const CreateNewOrder = ({ show }) => {
     }
   };
 
-  const submitForm = async (data) => {
+  const handlePayLater = async (data) => {
     try {
       const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
       const orderType = data.order_type === "Shipping";
@@ -87,6 +66,8 @@ const CreateNewOrder = ({ show }) => {
       if (response.ok) {
         reset();
         window.location.reload();
+      } else {
+        console.error("Error submitting order:", responseData.message);
       }
 
       setServerResponse(responseData.message);
@@ -95,24 +76,56 @@ const CreateNewOrder = ({ show }) => {
     }
   };
 
+  const totalPrice = 300;
+  const email = "apogen@mail.com";
+  const phone_number = "08012345678";
+  const name = "Apogen Pharmacy";
+  const title = "Payment to Apogen Pharmacy";
+  const description = "Payment for items in submitForm data";
+  const logo =
+    "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg";
+
+  const config = {
+    public_key: "FLWPUBK_TEST-04ca5c2cd148e5803fb311c0bfd1c511-X",
+    tx_ref: Date.now(),
+    amount: totalPrice,
+    currency: "KES",
+    payment_options: "card,mobilemoney,ussd",
+    customer: {
+      email: email,
+      phone_number: phone_number,
+      name: name,
+    },
+    customizations: {
+      title: title,
+      description: description,
+      logo: logo,
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
+
   const handlePayNow = async (data) => {
     try {
-      setOrderData(data); // Store order data in state
-
       handleFlutterPayment({
         callback: async (response) => {
-          console.log(response);
+          console.log("This is payment response", response);
           closePaymentModal(); // Close the modal programmatically
 
           if (response.status === "successful") {
-            await submitForm(orderData); // Submit the form if payment successful
+            await handlePayLater(data); // Submit the form if payment successful
+            console.log("Payment was successful");
+            console.log("This is is data", data);
+            console.log("This is payment response", response);
           } else {
             alert("Payment was unsuccessful");
-            window.location.href = "/orders"; // Redirect if payment unsuccessful
+            console.log("Payment was unsuccessful");
+            window.location.href = "/users"; // Redirect if payment unsuccessful
           }
         },
         onClose: () => {
           // Handle modal closure if needed
+          console.log("Payment closed by user");
         },
       });
     } catch (error) {
@@ -132,7 +145,7 @@ const CreateNewOrder = ({ show }) => {
         </Alert>
       )}
 
-      <Form onSubmit={handleSubmit(submitForm)}>
+      <Form>
         <Row>
           <Col md={6} className="mb-3">
             <Form.Group>
@@ -208,8 +221,14 @@ const CreateNewOrder = ({ show }) => {
               Pay Now
             </Button>
           </Col>
+
           <Col xs={6} md={4}>
-            <Button variant="success" type="submit" block className="w-100">
+            <Button
+              variant="success"
+              block
+              className="w-100"
+              onClick={handleSubmit(handlePayLater)}
+            >
               Pay Later
             </Button>
           </Col>
