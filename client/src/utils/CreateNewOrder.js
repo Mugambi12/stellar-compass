@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
+import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
 
 const CreateNewOrder = ({ show }) => {
   const {
@@ -12,6 +13,27 @@ const CreateNewOrder = ({ show }) => {
   const [medicines, setMedicines] = useState([]);
   const [users, setUsers] = useState([]);
   const [serverResponse, setServerResponse] = useState(null);
+  const [orderData, setOrderData] = useState(null);
+
+  const config = {
+    public_key: "FLWPUBK-**************************-X",
+    tx_ref: Date.now(),
+    amount: 100,
+    currency: "NGN",
+    payment_options: "card,mobilemoney,ussd",
+    customer: {
+      email: "user@gmail.com",
+      phone_number: "070********",
+      name: "john doe",
+    },
+    customizations: {
+      title: "my Payment Title",
+      description: "Payment for items in submitForm",
+      logo: "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg",
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
 
   useEffect(() => {
     fetchMedicines();
@@ -68,6 +90,31 @@ const CreateNewOrder = ({ show }) => {
       }
 
       setServerResponse(responseData.message);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handlePayNow = async (data) => {
+    try {
+      setOrderData(data); // Store order data in state
+
+      handleFlutterPayment({
+        callback: async (response) => {
+          console.log(response);
+          closePaymentModal(); // Close the modal programmatically
+
+          if (response.status === "successful") {
+            await submitForm(orderData); // Submit the form if payment successful
+          } else {
+            alert("Payment was unsuccessful");
+            window.location.href = "/orders"; // Redirect if payment unsuccessful
+          }
+        },
+        onClose: () => {
+          // Handle modal closure if needed
+        },
+      });
     } catch (error) {
       console.error("Error:", error);
     }
@@ -152,7 +199,12 @@ const CreateNewOrder = ({ show }) => {
 
         <Row className="justify-content-around">
           <Col xs={6} md={4} className="mb-3">
-            <Button variant="primary" block className="w-100">
+            <Button
+              variant="primary"
+              block
+              className="w-100"
+              onClick={handleSubmit(handlePayNow)}
+            >
               Pay Now
             </Button>
           </Col>
