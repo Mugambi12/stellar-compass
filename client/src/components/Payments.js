@@ -128,7 +128,7 @@ const Payments = () => {
               <td>{payment.quantity}</td>
               <td>{payment.total_price}</td>
               <td>{payment.status}</td>
-              <td>{payment.status}</td>
+              <td>{payment.payment_status}</td>
               <td>
                 <CashOutline
                   className="me-1"
