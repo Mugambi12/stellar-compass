@@ -65,7 +65,7 @@ class Order(db.Model, BaseMixin):
     order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     #shipping = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     total_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='Confirmed')  # Confirmed, Completed, Cancelled
+    status = db.Column(db.String(20), nullable=False, default='Approved')  # Approved, Completed, Cancelled
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
 
     sale_invoices = relationship('SaleInvoice', backref='customer_order', lazy=True)
