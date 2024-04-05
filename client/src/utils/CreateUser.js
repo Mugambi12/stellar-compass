@@ -121,15 +121,29 @@ const CreateUser = ({ show }) => {
 
           <Col md={6} className="mb-3">
             <Form.Group>
-              <Form.Label>Contact Info</Form.Label>
+              <Form.Label>Phone Number</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter Contact Info"
-                {...register("contact_info")}
+                {...register("contact_info", {
+                  required: true,
+                  maxLength: 20,
+                  minLength: 10,
+                })}
               />
 
               {errors.contact_info && (
                 <p className="text-danger small">Contact Info is required</p>
+              )}
+              {errors.contact_info?.type === "maxLength" && (
+                <p className="text-danger small">
+                  Contact Info is too long. Max 20 characters
+                </p>
+              )}
+              {errors.contact_info?.type === "minLength" && (
+                <p className="text-danger small">
+                  Contact Info is too short. Min 10 characters
+                </p>
               )}
             </Form.Group>
           </Col>
