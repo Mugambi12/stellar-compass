@@ -125,13 +125,14 @@ const Register = () => {
 
             <Col md={6} className="mb-3">
               <Form.Group>
-                <Form.Label className="mb-2">Contact Info</Form.Label>
+                <Form.Label className="mb-2">Phone Number</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter contact info"
                   {...register("contact_info", {
                     required: true,
-                    maxLength: 100,
+                    maxLength: 20,
+                    minLength: 10,
                   })}
                 />
 
@@ -141,6 +142,11 @@ const Register = () => {
                 {errors.contact_info?.type === "maxLength" && (
                   <p className="text-danger small">
                     Contact info is too long. Max 100 characters
+                  </p>
+                )}
+                {errors.contact_info?.type === "minLength" && (
+                  <p className="text-danger small">
+                    Contact info is too short. Min 10 characters
                   </p>
                 )}
               </Form.Group>
