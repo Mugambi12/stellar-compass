@@ -1,13 +1,12 @@
 // MakePayment.js
 import React, { useState, useEffect } from "react";
-import { Form, Button, Spinner, Alert, Row, Col } from "react-bootstrap";
+import { Form, Button, Spinner, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 const MakePayment = ({ show, payment }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverResponse, setServerResponse] = useState("");
-
   const { handleSubmit, setValue, reset } = useForm();
 
   useEffect(() => {
@@ -60,7 +59,12 @@ const MakePayment = ({ show, payment }) => {
   };
 
   if (isLoading) {
-    return <Spinner animation="border" />;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-auto">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
+      </div>
+    );
   }
 
   return (
