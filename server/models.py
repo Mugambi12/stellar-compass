@@ -86,6 +86,15 @@ class SaleInvoice(db.Model, BaseMixin):
     payments = relationship('Payment', backref='sale_invoice', lazy=True)
 
 
+#class Payment(db.Model, BaseMixin):
+#    __tablename__ = 'payments'
+#
+#    invoice_id = db.Column(db.Integer, db.ForeignKey('sale_invoices.id'), nullable=False)
+#    amount = db.Column(db.Float, nullable=False)
+#    payment_method = db.Column(db.String(50), nullable=True)
+#    transaction_id = db.Column(db.String(100), nullable=True)
+#    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
+
 class Payment(db.Model, BaseMixin):
     __tablename__ = 'payments'
 
@@ -94,4 +103,18 @@ class Payment(db.Model, BaseMixin):
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
+
+    # New columns to capture the data being logged
+    response_status = db.Column(db.String(20), nullable=True)
+    response_amount = db.Column(db.Float, nullable=True)
+    response_charge_response_code = db.Column(db.String(20), nullable=True)
+    response_charge_response_message = db.Column(db.String(100), nullable=True)
+    response_charged_amount = db.Column(db.Float, nullable=True)
+    response_currency = db.Column(db.String(10), nullable=True)
+    response_flw_ref = db.Column(db.String(100), nullable=True)
+    response_transaction_id = db.Column(db.String(100), nullable=True)
+    response_tx_ref = db.Column(db.String(100), nullable=True)
+    response_customer_email = db.Column(db.String(100), nullable=True)
+    response_customer_name = db.Column(db.String(100), nullable=True)
+    response_customer_phone_number = db.Column(db.String(20), nullable=True)
 
