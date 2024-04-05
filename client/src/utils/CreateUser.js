@@ -23,7 +23,6 @@ const CreateUser = ({ show }) => {
         address: data.address,
         contact_info: data.contact_info,
         role: data.role,
-        address: data.address,
       };
 
       const requestOptions = {

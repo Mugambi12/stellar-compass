@@ -84,7 +84,7 @@ const CreateNewOrder = ({ show }) => {
           closePaymentModal();
 
           if (response.status === "successful") {
-            await handlePayLater(data);
+            //await handlePayLater(data);
             console.log("Payment was successful");
             try {
               const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");

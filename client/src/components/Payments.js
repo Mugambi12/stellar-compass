@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Spinner, Table, Row, Col, Button } from "react-bootstrap";
+import { Spinner, Table, Row, Col } from "react-bootstrap";
 import { CashOutline, CloseCircleOutline } from "react-ionicons";
 import CenterModal from "../utils/Modal";
 import MakePayment from "../utils/MakePayment";

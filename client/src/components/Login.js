@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Button, Alert, Card, Col } from "react-bootstrap";
+import { Form, Button, Alert, Card } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { login } from "../auth";
 
@@ -68,6 +68,7 @@ const Login = () => {
               </Form.Text>
             )}
           </Form.Group>
+
           <Form.Group controlId="formPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control
@@ -86,6 +87,7 @@ const Login = () => {
               </Form.Text>
             )}
           </Form.Group>
+
           <Button
             variant="primary"
             type="submit"

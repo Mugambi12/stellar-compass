@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 const Register = () => {
   const {
     register,
-    watch,
     handleSubmit,
     reset,
     formState: { errors },
