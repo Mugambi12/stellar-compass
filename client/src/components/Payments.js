@@ -64,7 +64,6 @@ const Payments = () => {
     setSelectedPayment(payment);
     setModalType(type);
     setShow(true);
-    // Add logic for linking to the payment API
     console.log("Redirect to payment API");
   };
 
@@ -80,8 +79,9 @@ const Payments = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center">
-        <Spinner animation="border" /> Loading...
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
       </div>
     );
   }
@@ -100,16 +100,11 @@ const Payments = () => {
         </Col>
       </Row>
 
-      <Table
-        responsive
-        borderless
-        hover
-        variant="light"
-        className="text-center"
-      >
-        <thead>
+      <Table responsive borderless hover variant="light">
+        <thead className="table-primary">
           <tr>
-            <th>ID</th>
+            <th>#</th>
+            <th>Order Date</th>
             <th>User Name</th>
             <th>Medicine Name</th>
             <th>Quantity</th>
@@ -120,31 +115,35 @@ const Payments = () => {
           </tr>
         </thead>
         <tbody>
-          {payments.map((payment) => (
-            <tr key={payment.id}>
-              <td>{payment.id}</td>
-              <td>{getUserName(payment.user_id)}</td>
-              <td>{getMedicineName(payment.medication_id)}</td>
-              <td>{payment.quantity}</td>
-              <td>{payment.total_price}</td>
-              <td>{payment.status}</td>
-              <td>{payment.payment_status}</td>
-              <td>
-                <CashOutline
-                  className="me-1"
-                  color={"#00cc00"}
-                  onClick={() => handlePay("pay", payment)}
-                  style={{ cursor: "pointer" }}
-                />
-                <CloseCircleOutline
-                  className="ms-2"
-                  color={"#ff0000"}
-                  onClick={() => handleShow("cancel", payment)}
-                  style={{ cursor: "pointer" }}
-                />
-              </td>
-            </tr>
-          ))}
+          {payments
+            .reverse()
+            .filter((payment) => payment.status === "Confirmed")
+            .map((payment, index) => (
+              <tr key={payment.id}>
+                <td>{index + 1}</td>
+                <td>{new Date(payment.created_at).toLocaleDateString()}</td>
+                <td>{getUserName(payment.user_id)}</td>
+                <td>{getMedicineName(payment.medication_id)}</td>
+                <td>{payment.quantity}</td>
+                <td>{payment.total_price}</td>
+                <td>{payment.status}</td>
+                <td>{payment.payment_status}</td>
+                <td>
+                  <CashOutline
+                    className="me-1"
+                    color={"#00cc00"}
+                    onClick={() => handlePay("pay", payment)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <CloseCircleOutline
+                    className="ms-2"
+                    color={"#ff0000"}
+                    onClick={() => handleShow("cancel", payment)}
+                    style={{ cursor: "pointer" }}
+                  />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </Table>
 
