@@ -45,9 +45,9 @@ const Medicines = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center">
-        {" "}
-        <Spinner animation="border" /> Loading...{" "}
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
       </div>
     );
   }
@@ -70,16 +70,11 @@ const Medicines = () => {
         </Col>
       </Row>
 
-      <Table
-        responsive
-        borderless
-        hover
-        variant="light"
-        className="text-center"
-      >
-        <thead>
+      <Table responsive borderless hover variant="light">
+        <thead className="table-primary">
           <tr>
-            <th>Id</th>
+            <th>#</th>
+            <th>Created At</th>
             <th>Name</th>
             <th>Category</th>
             <th>Manufacturer</th>
@@ -90,9 +85,10 @@ const Medicines = () => {
           </tr>
         </thead>
         <tbody>
-          {medicines.map((medicine) => (
+          {medicines.reverse().map((medicine, index) => (
             <tr key={medicine.id}>
-              <td>{medicine.id}</td>
+              <td>{index + 1}</td>
+              <td>{new Date(medicine.created_at).toLocaleDateString()}</td>
               <td>{medicine.name}</td>
               <td>{medicine.category}</td>
               <td>{medicine.manufacturer}</td>
