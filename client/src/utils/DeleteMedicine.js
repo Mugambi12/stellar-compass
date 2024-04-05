@@ -49,12 +49,13 @@ const Deletemedicine = ({ show, medicine }) => {
       )}
 
       <Form onSubmit={handleSubmit(Deletemedicine)}>
-        {/* Display confirmation message */}
         <p>Are you sure you want to delete medicine {medicine.name}?</p>
-        {/* Button to submit the form */}
-        <Button variant="danger" type="submit">
-          Delete
-        </Button>
+
+        <div className="text-end">
+          <Button variant="danger" type="submit">
+            Delete
+          </Button>
+        </div>
       </Form>
     </div>
   );
