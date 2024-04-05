@@ -66,7 +66,12 @@ const UpdateMedicine = ({ show, medicine }) => {
   };
 
   if (isLoading) {
-    return <Spinner animation="border" />;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-auto">
+        <Spinner animation="border" variant="primary" />{" "}
+        <span className="ms-3"> Loading...</span>
+      </div>
+    );
   }
 
   return (
