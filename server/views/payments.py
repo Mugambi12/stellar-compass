@@ -39,9 +39,7 @@ class PaymentResource(Resource):
         try:
             data = request.get_json()
             new_payment = Payment(**data)
-            db.session.add(new_payment)
-            db.session.commit()
-
+            new_payment.save()
             return jsonify({'message': 'Payment created successfully'})
         except Exception as e:
             db.session.rollback()
@@ -65,9 +63,6 @@ class PaymentDetailResource(Resource):
             data = request.get_json()
             payment_to_update = Payment.query.get_or_404(id)
             payment_to_update.update(**data)
-
-            db.session.commit()
-
             return jsonify({'message': 'Payment updated successfully'})
         except Exception as e:
             db.session.rollback()
@@ -78,9 +73,7 @@ class PaymentDetailResource(Resource):
         """Delete a payment by id"""
         try:
             payment_to_delete = Payment.query.get_or_404(id)
-            db.session.delete(payment_to_delete)
-            db.session.commit()
-
+            payment_to_delete.delete()
             return jsonify({'message': 'Payment deleted successfully'})
         except Exception as e:
             db.session.rollback()
