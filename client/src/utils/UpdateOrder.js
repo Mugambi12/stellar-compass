@@ -93,9 +93,9 @@ const UpdateOrder = ({ show, order }) => {
 
   if (isLoading) {
     return (
-      <div className="text-center">
-        {" "}
-        <Spinner animation="border" /> Loading...{" "}
+      <div className="d-flex justify-content-center align-items-center vh-auto">
+        <Spinner animation="border" variant="primary" />{" "}
+        <span className="ms-3"> Loading...</span>
       </div>
     );
   }
@@ -117,14 +117,20 @@ const UpdateOrder = ({ show, order }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>User</Form.Label>
-              <Form.Select {...register("user_id", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("user_id", { required: true })}
+              >
                 <option value="">Select User</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.username}
-                  </option>
-                ))}
-              </Form.Select>
+                {users
+                  .slice()
+                  .sort((a, b) => a.username.localeCompare(b.username))
+                  .map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.username}
+                    </option>
+                  ))}
+              </Form.Control>
               {errors.user_id && (
                 <p className="text-danger small">User is required</p>
               )}
@@ -134,14 +140,20 @@ const UpdateOrder = ({ show, order }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>Medicine</Form.Label>
-              <Form.Select {...register("medication_id", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("medication_id", { required: true })}
+              >
                 <option value="">Select Medicine</option>
-                {medicines.map((medicine) => (
-                  <option key={medicine.id} value={medicine.id}>
-                    {medicine.name}
-                  </option>
-                ))}
-              </Form.Select>
+                {medicines
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((medicine) => (
+                    <option key={medicine.id} value={medicine.id}>
+                      {medicine.name}
+                    </option>
+                  ))}
+              </Form.Control>
               {errors.medication_id && (
                 <p className="text-danger small">Medicine is required</p>
               )}
@@ -165,11 +177,14 @@ const UpdateOrder = ({ show, order }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>Order Type</Form.Label>
-              <Form.Select {...register("order_type", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("order_type", { required: true })}
+              >
                 <option value="">Select Order Type</option>
                 <option value="Shipping">Shipping</option>
                 <option value="Pickup">Pickup</option>
-              </Form.Select>
+              </Form.Control>
               {errors.order_type && (
                 <p className="text-danger small">Order Type is required</p>
               )}
