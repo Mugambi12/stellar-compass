@@ -45,9 +45,9 @@ const Users = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center">
-        {" "}
-        <Spinner animation="border" /> Loading...{" "}
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
       </div>
     );
   }
@@ -70,16 +70,11 @@ const Users = () => {
         </Col>
       </Row>
 
-      <Table
-        responsive
-        borderless
-        hover
-        variant="light"
-        className="text-center"
-      >
-        <thead>
+      <Table responsive borderless hover variant="light">
+        <thead className="table-primary">
           <tr>
-            <th>Id</th>
+            <th>#</th>
+            <th>Created At</th>
             <th>Name</th>
             <th>Username</th>
             <th>Email</th>
@@ -91,9 +86,10 @@ const Users = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {users.reverse().map((user, index) => (
             <tr key={user.id}>
-              <td>{user.id}</td>
+              <td>{index + 1}</td>
+              <td>{new Date(user.created_at).toLocaleDateString()}</td>
               <td>{user.name}</td>
               <td>{user.username}</td>
               <td>{user.email}</td>
