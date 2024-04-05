@@ -76,9 +76,9 @@ const OrdersMade = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center">
-        {" "}
-        <Spinner animation="border" /> Loading...{" "}
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
       </div>
     );
   }
@@ -101,58 +101,59 @@ const OrdersMade = () => {
         </Col>
       </Row>
 
-      <Table
-        responsive
-        borderless
-        hover
-        variant="light"
-        className="text-center"
-      >
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>User Name</th>
-            <th>Medicine Name</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Order Type</th>
-            <th>Status</th>
-            <th>Payment</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ordersMade.map((order) => (
-            <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{getUserName(order.user_id)}</td>
-              <td>{getMedicineName(order.medication_id)}</td>
-              <td>{order.quantity}</td>
-              <td>{order.total_price}</td>
-              <td>{order.order_type ? "Shipping" : "Pickup"}</td>
-              <td>{order.status}</td>
-              <td>{order.payment_status}</td>
-              <td>
-                {/* Action icons */}
-                <EyeOutline
-                  style={{ cursor: "pointer", color: "#0096ff" }}
-                  onClick={() => {
-                    handleShow("update", order);
-                  }}
-                />
-
-                <TrashOutline
-                  className="ms-2"
-                  style={{ cursor: "pointer", color: "#ff0000" }}
-                  onClick={() => {
-                    handleShow("delete", order);
-                  }}
-                />
-              </td>
+      <div>
+        <Table responsive borderless hover variant="light">
+          <thead className="table-primary">
+            <tr>
+              <th>#</th>
+              <th>Order Date</th>
+              <th>User Name</th>
+              <th>Medicine Name</th>
+              <th>Quantity</th>
+              <th>Total Price</th>
+              <th>Order Type</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {ordersMade
+              .reverse()
+              .filter((payment) => payment.status === "Approved")
+              .map((order, index) => (
+                <tr key={order.id}>
+                  <td>{index + 1}</td>
+                  <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td>{getUserName(order.user_id)}</td>
+                  <td>{getMedicineName(order.medication_id)}</td>
+                  <td>{order.quantity}</td>
+                  <td>{order.total_price}</td>
+                  <td>{order.order_type ? "Shipping" : "Pickup"}</td>
+                  <td>{order.status}</td>
+                  <td>{order.payment_status}</td>
+                  <td>
+                    {/* Action icons */}
+                    <EyeOutline
+                      style={{ cursor: "pointer", color: "#0096ff" }}
+                      onClick={() => {
+                        handleShow("update", order);
+                      }}
+                    />
+
+                    <TrashOutline
+                      className="ms-2"
+                      style={{ cursor: "pointer", color: "#ff0000" }}
+                      onClick={() => {
+                        handleShow("delete", order);
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </Table>
+      </div>
 
       {/* Modal */}
       {modalType && (
