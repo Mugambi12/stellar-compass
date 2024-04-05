@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Row, Col, Button, Alert } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Form, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 const CreateNewMedicine = ({ show }) => {
@@ -10,6 +10,11 @@ const CreateNewMedicine = ({ show }) => {
     formState: { errors },
   } = useForm();
   const [serverResponse, setServerResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   const submitForm = async (data) => {
     try {
@@ -50,6 +55,15 @@ const CreateNewMedicine = ({ show }) => {
       setServerResponse(error.message);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-auto">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
