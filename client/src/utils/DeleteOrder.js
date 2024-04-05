@@ -49,12 +49,13 @@ const DeleteOrder = ({ show, order }) => {
       )}
 
       <Form onSubmit={handleSubmit(deleteOrder)}>
-        {/* Display confirmation message */}
         <p>Are you sure you want to delete order {order.id}?</p>
-        {/* Button to submit the form */}
-        <Button variant="danger" type="submit">
-          Delete
-        </Button>
+
+        <div className="text-end">
+          <Button variant="danger" type="submit">
+            Delete
+          </Button>
+        </div>
       </Form>
     </div>
   );
