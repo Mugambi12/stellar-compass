@@ -81,23 +81,6 @@ const CreateNewOrder = ({ show }) => {
 
       handleFlutterPayment({
         callback: async (response) => {
-          console.log("This is payment response", response);
-          console.log("Response status:", response.status);
-          console.log("Response amount:", response.amount);
-          console.log("Response code:", response.charge_response_code);
-          console.log("Response message:", response.charge_response_message);
-          console.log("Response charged amount:", response.charged_amount);
-          console.log("Response currency:", response.currency);
-          console.log("Response flw_ref:", response.flw_ref);
-          console.log("Response transaction ID:", response.transaction_id);
-          console.log("Response tx_ref:", response.tx_ref);
-          console.log("Repose customer email:", response.customer.email);
-          console.log("Response customer name:", response.customer.name);
-          console.log(
-            "Response customer phone number:",
-            response.customer.phone_number
-          );
-
           closePaymentModal();
 
           if (response.status === "successful") {
@@ -129,6 +112,9 @@ const CreateNewOrder = ({ show }) => {
                 order_type: orderType,
               };
 
+              console.log("responseBody:", responseBody);
+              console.log("body:", body);
+
               const requestOptions = {
                 method: "POST",
                 headers: {
@@ -155,7 +141,7 @@ const CreateNewOrder = ({ show }) => {
               console.error("Error:", error);
             }
           } else {
-            alert("Payment was unsuccessful");
+            setServerResponse("Payment was unsuccessful");
             console.log("Payment was unsuccessful");
             window.location.href = "/orders";
           }
@@ -224,14 +210,20 @@ const CreateNewOrder = ({ show }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>User</Form.Label>
-              <Form.Select {...register("user_id", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("user_id", { required: true })}
+              >
                 <option value="">Select User</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.username}
-                  </option>
-                ))}
-              </Form.Select>
+                {users
+                  .slice()
+                  .sort((a, b) => a.username.localeCompare(b.username))
+                  .map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.username}
+                    </option>
+                  ))}
+              </Form.Control>
               {errors.user_id && (
                 <p className="text-danger small">User is required</p>
               )}
@@ -241,14 +233,20 @@ const CreateNewOrder = ({ show }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>Medicine</Form.Label>
-              <Form.Select {...register("medication_id", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("medication_id", { required: true })}
+              >
                 <option value="">Select Medicine</option>
-                {medicines.map((medicine) => (
-                  <option key={medicine.id} value={medicine.id}>
-                    {medicine.name}
-                  </option>
-                ))}
-              </Form.Select>
+                {medicines
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((medicine) => (
+                    <option key={medicine.id} value={medicine.id}>
+                      {medicine.name}
+                    </option>
+                  ))}
+              </Form.Control>
               {errors.medication_id && (
                 <p className="text-danger small">Medicine is required</p>
               )}
@@ -272,11 +270,14 @@ const CreateNewOrder = ({ show }) => {
           <Col md={6} className="mb-3">
             <Form.Group>
               <Form.Label>Order Type</Form.Label>
-              <Form.Select {...register("order_type", { required: true })}>
+              <Form.Control
+                as="select"
+                {...register("order_type", { required: true })}
+              >
                 <option value="">Select Order Type</option>
                 <option value="Shipping">Shipping</option>
                 <option value="Pickup">Pickup</option>
-              </Form.Select>
+              </Form.Control>
               {errors.order_type && (
                 <p className="text-danger small">Order Type is required</p>
               )}
