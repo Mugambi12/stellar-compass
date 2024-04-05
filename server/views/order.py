@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
-from models import Order, Medication, SaleInvoice
+from models import Order, Medication, Payment, SaleInvoice
 from exts import db
 from flask_jwt_extended import jwt_required
 
@@ -49,17 +49,38 @@ class OrderResource(Resource):
         if medication.stock_quantity < quantity:
             abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
 
-        total_price = quantity * medication.price
-        new_order = Order(**data, total_price=total_price)
-        new_order.save()
+        if data.transation_id is None:
+            total_price = quantity * medication.price
+            new_order = Order(**data, total_price=total_price)
+            new_order.save()
 
-        new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
-        new_sale.save()
+            new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
+            new_sale.save()
 
-        medication.stock_quantity -= quantity
-        medication.save()
+            medication.stock_quantity -= quantity
+            medication.save()
+            return jsonify({'message': 'Order placed successfully'})
 
-        return jsonify({'message': 'Order placed successfully'})
+        if data.transation_id is not None:
+            order_data = {
+                'user_id': user_id,
+                'medication_id': medication_id,
+                'quantity': quantity,
+                'total_price': data.amount,
+                'payment_status': 'Paid',
+                'order_type': data.order_type,
+                'status': 'Approved'
+            }
+            new_order_info = Order(**data, total_price=data.amount)
+
+
+
+            new_order_payment = Payment(**data, total_price=data.amount)
+            new_order_payment.save()
+
+            medication.stock_quantity -= quantity
+            medication.save()
+            return jsonify({'message': 'Order placed successfully'})
 
 
 # Resource for handling individual orders
@@ -118,7 +139,7 @@ class OrderDetailResource(Resource):
         if not order_to_delete:
             abort(404, message='Order not found')
 
-        if order_to_delete.status != 'Confirmed':
+        if order_to_delete.status != 'Approved':
             abort(400, message='Cannot delete a sold order')
 
         sale_to_delete = SaleInvoice.query.filter_by(customer_order_id=order_to_delete.id).first()

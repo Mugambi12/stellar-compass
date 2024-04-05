@@ -28,7 +28,7 @@ user_model = user_ns.model(
 @user_ns.route('/hello')
 class HelloWorld(Resource):
     def get(self):
-        return {'message': 'Hello Eng. Silas Mugambi'}
+        return {'message': 'Hello Eng. Trassy Karembo!'}
 
 
 @user_ns.route('/users')
