@@ -177,9 +177,11 @@ const UpdateOrder = ({ show, order }) => {
           </Col>
         </Row>
 
-        <Button variant="primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Updating..." : "Update"}
-        </Button>
+        <div className="text-end">
+          <Button variant="primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Updating..." : "Update"}
+          </Button>
+        </div>
       </Form>
     </div>
   );
