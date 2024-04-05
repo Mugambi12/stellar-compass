@@ -55,7 +55,7 @@ const Invoices = () => {
       </Card.Subtitle>
 
       <Table responsive borderless hover variant="light">
-        <thead>
+        <thead className="table-primary">
           <tr>
             <th>Id</th>
             <th>Name</th>
