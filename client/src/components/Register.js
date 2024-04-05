@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Form, Button, Alert, Card, Row, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
+import PasswordToggle from "../utils/PasswordToggle";
 
 const Register = () => {
   const {
@@ -13,6 +14,8 @@ const Register = () => {
 
   const [show, setShow] = useState(false);
   const [serverResponse, setServerResponse] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const submitForm = (data) => {
     if (data.password === data.confirm_password) {
@@ -46,9 +49,17 @@ const Register = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="container mt-5">
-      <Card className="p-3 col-md-8 mx-auto">
+      <Card className="p-3 col-md-8 mx-auto bg-transparent border-0 shadow-sm">
         <h3 className="text-center mb-3">Create an Account</h3>
 
         {show ? (
@@ -154,18 +165,23 @@ const Register = () => {
             <Col md={6} className="mb-3">
               <Form.Group>
                 <Form.Label className="mb-2">Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  {...register("password", { required: true, minLength: 6 })}
-                />
-
+                <div className="input-group">
+                  <Form.Control
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    {...register("password", { required: true, minLength: 8 })}
+                  />
+                  <PasswordToggle
+                    showPassword={showPassword}
+                    togglePassword={togglePasswordVisibility}
+                  />
+                </div>
                 {errors.password && (
                   <p className="text-danger small">Password is required</p>
                 )}
                 {errors.password?.type === "minLength" && (
                   <p className="text-danger small">
-                    Password is too short. Min 6 characters
+                    Password is too short. Min 8 characters
                   </p>
                 )}
               </Form.Group>
@@ -174,15 +190,20 @@ const Register = () => {
             <Col md={6} className="mb-3">
               <Form.Group>
                 <Form.Label className="mb-2">Confirm Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Confirm password"
-                  {...register("confirm_password", {
-                    required: true,
-                    minLength: 6,
-                  })}
-                />
-
+                <div className="input-group">
+                  <Form.Control
+                    type="password"
+                    placeholder="Confirm password"
+                    {...register("confirm_password", {
+                      required: true,
+                      minLength: 6,
+                    })}
+                  />
+                  <PasswordToggle
+                    showPassword={showConfirmPassword}
+                    togglePassword={toggleConfirmPasswordVisibility}
+                  />
+                </div>
                 {errors.confirm_password && (
                   <p className="text-danger small">
                     Confirm password is required
@@ -204,6 +225,7 @@ const Register = () => {
               as="sub"
               variant="primary"
               type="submit"
+              className="mt-4 mb-2 py-3 w-100 fs-5 bg-gradient border-0"
               onClick={handleSubmit(submitForm)}
             >
               Sign Up

@@ -36,6 +36,7 @@ textarea {
   border: 1px solid rgba(255, 166, 0, 0.5) !important;
   outline: none !important;
   box-shadow: none !important;
+  background-color: whitesmoke !important;
 }
 body {
   font-family: "Poppins", sans-serif;

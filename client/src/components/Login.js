@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Alert, Card } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { login } from "../auth";
+import PasswordToggle from "../utils/PasswordToggle";
 
 const Login = () => {
   const {
@@ -13,6 +14,7 @@ const Login = () => {
 
   const [show, setShow] = useState(false);
   const [serverResponse, setServerResponse] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -36,21 +38,28 @@ const Login = () => {
       });
   };
 
+  // Function to toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="container mt-5">
-      <Card className="p-4 col-md-5 mx-auto">
+      <Card className="p-4 col-md-5 mx-auto bg-transparent border-0 shadow-sm">
         <div className="text-center mb-4">
           <h3>Welcome to Utibu Health</h3>
           <p className="text-muted">Happy to see you back</p>
         </div>
+
         {show && (
           <Alert variant="danger" onClose={() => setShow(false)} dismissible>
             <Alert.Heading>Login Failed!</Alert.Heading>
             <p>{serverResponse}</p>
           </Alert>
         )}
+
         <Form onSubmit={handleSubmit(loginUser)}>
-          <Form.Group controlId="formUsername">
+          <Form.Group>
             <Form.Label>Username</Form.Label>
             <Form.Control
               type="text"
@@ -69,13 +78,19 @@ const Login = () => {
             )}
           </Form.Group>
 
-          <Form.Group controlId="formPassword">
+          <Form.Group>
             <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Enter password"
-              {...register("password", { required: true, minLength: 8 })}
-            />
+            <div className="input-group">
+              <Form.Control
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                {...register("password", { required: true, minLength: 8 })}
+              />
+              <PasswordToggle
+                showPassword={showPassword}
+                togglePassword={togglePasswordVisibility}
+              />
+            </div>
             {errors.password && (
               <Form.Text className="text-danger">
                 Password is required
@@ -96,6 +111,7 @@ const Login = () => {
             Login
           </Button>
         </Form>
+
         <div className="text-center mt-3">
           <small>
             Don't have an account? <Link to="/register">Get Started</Link>
