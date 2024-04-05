@@ -39,6 +39,137 @@ const CreateNewOrder = ({ show }) => {
     }
   };
 
+  const config = {
+    public_key: "FLWPUBK_TEST-04ca5c2cd148e5803fb311c0bfd1c511-X",
+    tx_ref: Date.now(),
+    amount: 0,
+    currency: "KES",
+    payment_options: "card,mobilemoney,ussd",
+    customer: {
+      email: "",
+      phone_number: "",
+      name: "",
+    },
+    customizations: {
+      title: "Payment to Apogen Pharmacy",
+      description: "Payment for items in submitForm data",
+      logo: "shop-log.jpg",
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
+
+  const handlePayNow = async (data) => {
+    try {
+      for (let user of users) {
+        if (user.id == data.user_id) {
+          console.log("username:", user.username);
+          config.customer.email = user.email;
+          config.customer.phone_number = user.contact_info;
+          config.customer.name = user.username;
+          break;
+        }
+      }
+
+      for (let medicine of medicines) {
+        if (medicine.id == data.medication_id) {
+          console.log("medicine price:", medicine.price);
+          config.amount = medicine.price * data.quantity;
+          break;
+        }
+      }
+
+      handleFlutterPayment({
+        callback: async (response) => {
+          console.log("This is payment response", response);
+          console.log("Response status:", response.status);
+          console.log("Response amount:", response.amount);
+          console.log("Response code:", response.charge_response_code);
+          console.log("Response message:", response.charge_response_message);
+          console.log("Response charged amount:", response.charged_amount);
+          console.log("Response currency:", response.currency);
+          console.log("Response flw_ref:", response.flw_ref);
+          console.log("Response transaction ID:", response.transaction_id);
+          console.log("Response tx_ref:", response.tx_ref);
+          console.log("Repose customer email:", response.customer.email);
+          console.log("Response customer name:", response.customer.name);
+          console.log(
+            "Response customer phone number:",
+            response.customer.phone_number
+          );
+
+          closePaymentModal();
+
+          if (response.status === "successful") {
+            await handlePayLater(data);
+            console.log("Payment was successful");
+            try {
+              const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+              const orderType = data.order_type === "Shipping";
+
+              const responseBody = {
+                response_status: response.status,
+                response_amount: response.amount,
+                response_code: response.charge_response_code,
+                response_message: response.charge_response_message,
+                response_charged_amount: response.charged_amount,
+                response_currency: response.currency,
+                response_flw_ref: response.flw_ref,
+                response_transaction_id: response.transaction_id,
+                response_tx_ref: response.tx_ref,
+                response_customer_email: response.customer.email,
+                response_customer_name: response.customer.name,
+                response_customer_phone_number: response.customer.phone_number,
+              };
+
+              const body = {
+                user_id: parseInt(data.user_id),
+                medication_id: parseInt(data.medication_id),
+                quantity: parseInt(data.quantity),
+                order_type: orderType,
+              };
+
+              const requestOptions = {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${JSON.parse(token)}`,
+                },
+                body: JSON.stringify(body, responseBody),
+              };
+
+              const response = await fetch(
+                "/payments/payments",
+                requestOptions
+              );
+              const responseData = await response.json();
+
+              if (response.ok) {
+                reset();
+                window.location.reload();
+              } else {
+                console.error("Error submitting order:", responseData.message);
+              }
+              setServerResponse(responseData.message);
+            } catch (error) {
+              console.error("Error:", error);
+            }
+          } else {
+            alert("Payment was unsuccessful");
+            console.log("Payment was unsuccessful");
+            window.location.href = "/orders";
+          }
+        },
+        onClose: () => {
+          // Handle modal closure if needed
+          console.log("Payment closed by user");
+        },
+      });
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   const handlePayLater = async (data) => {
     try {
       const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
@@ -71,71 +202,6 @@ const CreateNewOrder = ({ show }) => {
       }
 
       setServerResponse(responseData.message);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const totalPrice = 300;
-  const user_id = 1;
-  const medication_id = 1;
-  const quantity = 10;
-  const order_type = 1;
-  const email = "apogen@mail.com";
-  const phone_number = "0700123123";
-  const name = "john doe";
-
-  const title = "Payment to Apogen Pharmacy";
-  const description = "Payment for items in submitForm data";
-  const logo = "shop-log.jpg";
-
-  const config = {
-    public_key: "FLWPUBK_TEST-04ca5c2cd148e5803fb311c0bfd1c511-X",
-    tx_ref: Date.now(),
-    amount: totalPrice,
-    currency: "KES",
-    payment_options: "card,mobilemoney,ussd",
-    customer: {
-      user_id: user_id,
-      medication_id: medication_id,
-      quantity: quantity,
-      order_type: order_type,
-      email: email,
-      phone_number: phone_number,
-      name: name,
-    },
-    customizations: {
-      title: title,
-      description: description,
-      logo: logo,
-    },
-  };
-
-  const handleFlutterPayment = useFlutterwave(config);
-
-  const handlePayNow = async (data) => {
-    try {
-      handleFlutterPayment({
-        callback: async (response) => {
-          console.log("This is payment response", response);
-          closePaymentModal(); // Close the modal programmatically
-
-          if (response.status === "successful") {
-            await handlePayLater(data); // Submit the form if payment successful
-            console.log("Payment was successful");
-            console.log("This is is data", data);
-            console.log("This is payment response", response);
-          } else {
-            alert("Payment was unsuccessful");
-            console.log("Payment was unsuccessful");
-            window.location.href = "/users"; // Redirect if payment unsuccessful
-          }
-        },
-        onClose: () => {
-          // Handle modal closure if needed
-          console.log("Payment closed by user");
-        },
-      });
     } catch (error) {
       console.error("Error:", error);
     }
