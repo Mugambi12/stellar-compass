@@ -96,7 +96,7 @@ Once the application is installed and running, registered patients can log in to
   - React
   - Bootstrap
   - React Router
-  - Axios (for API requests)
+  - Fetch (for API requests)
 
 - **Server-side**:
   - Flask
