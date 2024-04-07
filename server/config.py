@@ -13,8 +13,8 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = config('PRODUCTION_DATABASE_URI')
-    DEBUG = False
-    SQLALCHEMY_ECHO = False
+    DEBUG = config('DEBUG', cast=bool)
+    SQLALCHEMY_ECHO = config('SQLALCHEMY_ECHO', cast=bool)
 
 class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = config('TEST_DATABASE_URI')
