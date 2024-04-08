@@ -117,7 +117,7 @@ const Payments = () => {
         <tbody>
           {payments
             .reverse()
-            .filter((payment) => payment.status === "Confirmed")
+            //.filter((payment) => payment.status === "Confirmed")
             .map((payment, index) => (
               <tr key={payment.id}>
                 <td>{index + 1}</td>
