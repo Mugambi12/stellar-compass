@@ -10,12 +10,22 @@ payment_ns = Namespace('payments', description='Payment Operations')
 # Model for Payment Serializer
 payment_model = payment_ns.model(
     'Payment', {
-        'id': fields.Integer,
         'invoice_id': fields.Integer,
         'amount': fields.Float,
         'payment_method': fields.String,
         'transaction_id': fields.String,
         'status': fields.String,
+        'response_amount': fields.Float,
+        'response_charge_response_code': fields.String,
+        'response_charge_response_message': fields.String,
+        'response_charged_amount': fields.Float,
+        'response_currency': fields.String,
+        'response_flw_ref': fields.String,
+        'response_transaction_id': fields.String,
+        'response_tx_ref': fields.String,
+        'response_customer_email': fields.String,
+        'response_customer_name': fields.String,
+        'response_customer_phone_number': fields.String,
         'deleted': fields.Boolean,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
