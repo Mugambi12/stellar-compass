@@ -1,51 +1,57 @@
 import React, { useEffect, useState } from "react";
-import { Table, Card, Button, Modal } from "react-bootstrap";
-import { EyeOutline } from "react-ionicons";
-
-const centerModal = (props) => {
-  return (
-    <Modal
-      show={props.show}
-      onHide={props.handleClose}
-      backdrop="static"
-      keyboard={false}
-      {...props}
-      size="lg"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Sales Modal</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
-        I will not close if you click outside me. Do not even try to press the
-        escape key.
-      </Modal.Body>
-
-      <Modal.Footer className="justify-content-between">
-        <Button size="sm" variant="secondary" onClick={props.handleClose}>
-          Close
-        </Button>
-        <Button size="sm" variant="primary">
-          Understood
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
+import { Spinner, Table, Card } from "react-bootstrap";
+import { CashOutline, CloseCircleOutline } from "react-ionicons";
+import CenterModal from "../utils/Modal";
+import MakePayment from "../utils/MakePayment";
+import CancelPayment from "../utils/CancelPayment";
 
 const Invoices = () => {
-  const [sales, setSales] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modalType, setModalType] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    fetch("/sales/sales")
-      .then((response) => response.json())
-      .then((data) => setSales(data));
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch("/payments/payments");
+        const data = await response.json();
+        setPayments(data);
+      } catch (error) {
+        console.error("Error fetching payments:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPayments();
   }, []);
 
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  const handleShow = (type, payment) => {
+    setSelectedPayment(payment);
+    setModalType(type);
+    setShow(true);
+  };
+
+  const handlePay = (type, payment) => {
+    setSelectedPayment(payment);
+    setModalType(type);
+    setShow(true);
+    console.log("Redirect to payment API");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid">
@@ -57,39 +63,63 @@ const Invoices = () => {
       <Table responsive borderless hover variant="light">
         <thead className="table-primary">
           <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>customer_order_id</th>
-            <th>amount</th>
-            <th>payment_method</th>
-            <th>transaction_id</th>
-            <th>active_sale</th>
-            <th>due_date</th>
-            <th>Status</th>
+            <th>#</th>
+            <th>Order Date</th>
+            <th>User Name</th>
+            <th>Medicine Name</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Order Status</th>
+            <th>Payment</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {sales.map((sale) => (
-            <tr key={sale.id}>
-              <td>{sale.id}</td>
-              <td>{sale.name}</td>
-              <td>{sale.customer_order_id}</td>
-              <td>{sale.amount}</td>
-              <td>{sale.payment_method}</td>
-              <td>{sale.transaction_id}</td>
-              <td>{sale.active_sale}</td>
-              <td>{sale.due_date}</td>
-              <td>{sale.status}</td>
+          {payments.reverse().map((payment, index) => (
+            <tr key={payment.id}>
+              <td>{index + 1}</td>
+              <td>{new Date(payment.created_at).toLocaleDateString()}</td>
+              <td>{payment.response_customer_name}</td>
+              <td>{payment.response_customer_email}</td>
+              <td>{payment.amount}</td>
+              <td>{payment.status}</td>
+              <td>{payment.payment_method}</td>
               <td>
-                <EyeOutline color={"#0096ff"} onClick={handleShow} />
+                <CashOutline
+                  className="me-1"
+                  color={"#00cc00"}
+                  onClick={() => handlePay("pay", payment)}
+                  style={{ cursor: "pointer" }}
+                />
+                <CloseCircleOutline
+                  className="ms-2"
+                  color={"#ff0000"}
+                  onClick={() => handleShow("cancel", payment)}
+                  style={{ cursor: "pointer" }}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      {centerModal({ show, handleClose })}
+      {modalType && (
+        <CenterModal
+          show={show}
+          handleClose={handleClose}
+          title={modalType === "pay" ? "Make Payment" : "Cancel Payment"}
+        >
+          {modalType === "pay" && (
+            <MakePayment show={modalType === "pay"} payment={selectedPayment} />
+          )}
+          {modalType === "cancel" && (
+            <CancelPayment
+              show={modalType === "cancel"}
+              payment={selectedPayment}
+            />
+          )}
+        </CenterModal>
+      )}
     </div>
   );
 };
