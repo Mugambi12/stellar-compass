@@ -10,10 +10,10 @@ order_ns = Namespace('orders', description='Order Operations')
 # Model for Order Serializer
 order_model = order_ns.model(
     'Order', {
-        'id': fields.Integer,
-        'user_id': fields.Integer,
-        'medication_id': fields.Integer,
-        'quantity': fields.Integer,
+        'user_id': fields.Integer(required=True),
+        'medication_id': fields.Integer(required=True),
+        'quantity': fields.Integer(required=True),
+        'shipping': fields.String(required=True),
         'total_price': fields.Float,
         'payment_status': fields.String,
         'order_type': fields.Boolean,
@@ -25,7 +25,32 @@ order_model = order_ns.model(
     }
 )
 
-# Resource for handling orders
+# Model for Payment Serializer
+payment_model = order_ns.model(
+    'Payment', {
+        'invoice_id': fields.Integer,
+        'amount': fields.Float,
+        'payment_method': fields.String,
+        'transaction_id': fields.String,
+        'status': fields.String,
+        'response_amount': fields.Float,
+        'response_charge_response_code': fields.String,
+        'response_charge_response_message': fields.String,
+        'response_charged_amount': fields.Float,
+        'response_currency': fields.String,
+        'response_flw_ref': fields.String,
+        'response_transaction_id': fields.String,
+        'response_tx_ref': fields.String,
+        'response_customer_email': fields.String,
+        'response_customer_name': fields.String,
+        'response_customer_phone_number': fields.String,
+        'deleted': fields.Boolean,
+        'created_at': fields.DateTime,
+        'updated_at': fields.DateTime,
+    }
+)
+
+
 @order_ns.route('/orders')
 class OrderResource(Resource):
 
@@ -35,52 +60,57 @@ class OrderResource(Resource):
         orders = Order.query.all()
         return orders, 200
 
-    @order_ns.expect(order_model)
+    @order_ns.expect(order_model, payment_model)
     @jwt_required()
     def post(self):
-        """Create a new order"""
-        data = request.get_json()
-        user_id = data.get('user_id')
-        medication_id = data.get('medication_id')
-        quantity = data.get('quantity')
+        try:
+            data = request.json
+            user_id = data.get('user_id')
+            medication_id = data.get('medication_id')
+            quantity = data.get('quantity')
+            shipping = data.get('shipping')
 
+            medication = Medication.query.get_or_404(medication_id)
+            if medication.stock_quantity < quantity:
+                abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
 
-        medication = Medication.query.get_or_404(medication_id)
-        if medication.stock_quantity < quantity:
-            abort(400, message=f'Insufficient stock. There are only {medication.stock_quantity} units available')
-
-        if data.transation_id is None:
-            total_price = quantity * medication.price
-            new_order = Order(**data, total_price=total_price)
+            calculate_total_price = quantity * medication.price
+            new_order = Order(user_id=user_id,
+                              medication_id=medication_id,
+                              quantity=quantity,
+                              shipping=shipping,
+                              total_price=calculate_total_price,
+                              payment_status='Pending')
             new_order.save()
 
-            new_sale = SaleInvoice(customer_order_id=new_order.id, amount=new_order.total_price)
-            new_sale.save()
+            sale_invoice = SaleInvoice(customer_order=new_order,
+                                       amount=calculate_total_price,
+                                       status='Pending')
+            sale_invoice.save()
 
-            medication.stock_quantity -= quantity
-            medication.save()
-            return jsonify({'message': 'Order placed successfully'})
+            if not data.get('response_transaction_id'):
+                return jsonify({'message': 'Order placed successfully but payment to be made later.'}), 200
 
-        if data.transation_id is not None:
-            order_data = {
-                'user_id': user_id,
-                'medication_id': medication_id,
-                'quantity': quantity,
-                'total_price': data.amount,
-                'payment_status': 'Paid',
-                'order_type': data.order_type,
-                'status': 'Approved'
-            }
-            new_order_info = Order(**data, total_price=data.amount)
+            payment = Payment(invoice=sale_invoice, amount=data.get('response_amount'),
+                              payment_method=data.get('response_payment_method'),
+                              transaction_id=data.get("response_transaction_id"),
+                              status=data.get("response_status"),
+                              response_amount=data.get("response_amount"),
+                              response_charge_response_code=data.get("response_charge_response_code"),
+                              response_charge_response_message=data.get("response_charge_response_message"),
+                              response_charged_amount=data.get("response_charged_amount"),
+                              response_currency=data.get("response_currency"),
+                              response_flw_ref=data.get("response_flw_ref"),
+                              response_transaction_id=data.get("response_transaction_id"),
+                              response_tx_ref=data.get("response_tx_ref"),
+                              response_customer_email=data.get("response_customer_email"),
+                              response_customer_name=data.get("response_customer_name"),
+                              response_customer_phone_number=data.get("response_customer_phone_number"))
+            payment.save()
 
-
-
-            new_order_payment = Payment(**data, total_price=data.amount)
-            new_order_payment.save()
-
-            medication.stock_quantity -= quantity
-            medication.save()
-            return jsonify({'message': 'Order placed successfully'})
+            return jsonify({'message': 'Order placed successfully and payment made'}), 200
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
 
 
 # Resource for handling individual orders
