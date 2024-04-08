@@ -31,8 +31,7 @@ class User(db.Model, BaseMixin):
     name = db.Column(db.String(100), nullable=True)
     address = db.Column(db.Text, nullable=True)
     contact_info = db.Column(db.String(100), nullable=True)
-    role = db.Column(db.String(20), nullable=True, default='customer')  # Example: admin, customer
-    #role = db.Column(db.String(20), nullable=False, default='customer')  # Example: admin, customer
+    role = db.Column(db.String(20), nullable=False, default='customer')  # Example: admin, customer
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
     orders = relationship('Order', backref='user', lazy=True)
@@ -59,14 +58,15 @@ class Medication(db.Model, BaseMixin):
 class Order(db.Model, BaseMixin):
     __tablename__ = 'customer_orders'
 
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    order_type = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
-    #shipping = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
+    shipping = db.Column(db.Boolean, nullable=False, default=True)  # Shipping or Pickup
     total_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='Approved')  # Approved, Completed, Cancelled
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
+    status = db.Column(db.String(20), nullable=False, default='Approved')  # Approved, Completed, Cancelled
+    sold = db.Column(db.Boolean, nullable=False, default=False)
 
     sale_invoices = relationship('SaleInvoice', backref='customer_order', lazy=True)
 
@@ -74,6 +74,7 @@ class Order(db.Model, BaseMixin):
 class SaleInvoice(db.Model, BaseMixin):
     __tablename__ = 'sale_invoices'
 
+    id = db.Column(db.Integer, primary_key=True)
     customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
@@ -82,29 +83,18 @@ class SaleInvoice(db.Model, BaseMixin):
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Values: Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
     due_date = db.Column(db.Date, nullable=True)
 
-    # Define the relationship with payments
     payments = relationship('Payment', backref='sale_invoice', lazy=True)
 
-
-#class Payment(db.Model, BaseMixin):
-#    __tablename__ = 'payments'
-#
-#    invoice_id = db.Column(db.Integer, db.ForeignKey('sale_invoices.id'), nullable=False)
-#    amount = db.Column(db.Float, nullable=False)
-#    payment_method = db.Column(db.String(50), nullable=True)
-#    transaction_id = db.Column(db.String(100), nullable=True)
-#    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
 
 class Payment(db.Model, BaseMixin):
     __tablename__ = 'payments'
 
+    id = db.Column(db.Integer, primary_key=True)
     invoice_id = db.Column(db.Integer, db.ForeignKey('sale_invoices.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
-
-    # New columns to capture the data being logged
     response_status = db.Column(db.String(20), nullable=True)
     response_amount = db.Column(db.Float, nullable=True)
     response_charge_response_code = db.Column(db.String(20), nullable=True)
@@ -117,4 +107,3 @@ class Payment(db.Model, BaseMixin):
     response_customer_email = db.Column(db.String(100), nullable=True)
     response_customer_name = db.Column(db.String(100), nullable=True)
     response_customer_phone_number = db.Column(db.String(20), nullable=True)
-
