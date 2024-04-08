@@ -43,7 +43,7 @@ const UpdateOrder = ({ show, order }) => {
   useEffect(() => {
     if (order) {
       setValue("quantity", order.quantity);
-      setValue("order_type", order.order_type ? "Shipping" : "Pickup");
+      setValue("shipping", order.shipping ? "Shipping" : "Pickup");
       setValue("user_id", order.user_id);
       setValue("medication_id", order.medication_id);
     }
@@ -57,7 +57,7 @@ const UpdateOrder = ({ show, order }) => {
       user_id: parseInt(data.user_id),
       medication_id: parseInt(data.medication_id),
       quantity: parseInt(data.quantity),
-      order_type: data.order_type === "Shipping",
+      shipping: data.shipping === "Shipping",
     };
 
     const requestOptions = {
@@ -179,13 +179,13 @@ const UpdateOrder = ({ show, order }) => {
               <Form.Label>Order Type</Form.Label>
               <Form.Control
                 as="select"
-                {...register("order_type", { required: true })}
+                {...register("shipping", { required: true })}
               >
                 <option value="">Select Order Type</option>
                 <option value="Shipping">Shipping</option>
                 <option value="Pickup">Pickup</option>
               </Form.Control>
-              {errors.order_type && (
+              {errors.shipping && (
                 <p className="text-danger small">Order Type is required</p>
               )}
             </Form.Group>
