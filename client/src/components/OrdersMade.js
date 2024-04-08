@@ -129,7 +129,7 @@ const OrdersMade = () => {
                   <td>{getMedicineName(order.medication_id)}</td>
                   <td>{order.quantity}</td>
                   <td>{order.total_price}</td>
-                  <td>{order.order_type ? "Shipping" : "Pickup"}</td>
+                  <td>{order.shipping ? "Shipping" : "Pickup"}</td>
                   <td>{order.status}</td>
                   <td>{order.payment_status}</td>
                   <td>
