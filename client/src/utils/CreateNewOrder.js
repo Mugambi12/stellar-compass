@@ -16,6 +16,9 @@ const CreateNewOrder = ({ show }) => {
 
   useEffect(() => {
     fetchMedicines();
+  }, []);
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -59,6 +62,42 @@ const CreateNewOrder = ({ show }) => {
 
   const handleFlutterPayment = useFlutterwave(config);
 
+  const handlePayLater = async (data) => {
+    try {
+      const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+      const orderType = data.shipping === "Shipping";
+
+      const body = {
+        user_id: parseInt(data.user_id),
+        medication_id: parseInt(data.medication_id),
+        quantity: parseInt(data.quantity),
+        shipping: orderType,
+      };
+
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+        body: JSON.stringify(body),
+      };
+
+      const response = await fetch("/orders/orders", requestOptions);
+      const responseData = await response.json();
+
+      if (response.ok) {
+        reset();
+        window.location.reload();
+      } else {
+        throw new Error(responseData.message); // Throw error for unsuccessful response
+      }
+    } catch (error) {
+      console.error("Error submitting order:", error.message);
+      setServerResponse("Error submitting order: " + error.message); // Set error message in state
+    }
+  };
+
   const handlePayNow = async (data) => {
     try {
       for (let user of users) {
@@ -83,37 +122,35 @@ const CreateNewOrder = ({ show }) => {
         callback: async (response) => {
           closePaymentModal();
 
+          const orderType = data.shipping === "Shipping";
+
+          const body = {
+            user_id: parseInt(data.user_id),
+            medication_id: parseInt(data.medication_id),
+            quantity: parseInt(data.quantity),
+            shipping: orderType,
+
+            response_status: response.status,
+            response_amount: response.amount,
+            response_code: response.charge_response_code,
+            response_message: response.charge_response_message,
+            response_charged_amount: response.charged_amount,
+            response_currency: response.currency,
+            response_flw_ref: response.flw_ref,
+            response_transaction_id: response.transaction_id,
+            response_tx_ref: response.tx_ref,
+            response_customer_email: response.customer.email,
+            response_customer_name: response.customer.name,
+            response_customer_phone_number: response.customer.phone_number,
+          };
+
           if (response.status === "successful") {
-            //await handlePayLater(data);
+            await handlePayLater(data);
             console.log("Payment was successful");
             try {
               const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-              const orderType = data.order_type === "Shipping";
 
-              const responseBody = {
-                response_status: response.status,
-                response_amount: response.amount,
-                response_code: response.charge_response_code,
-                response_message: response.charge_response_message,
-                response_charged_amount: response.charged_amount,
-                response_currency: response.currency,
-                response_flw_ref: response.flw_ref,
-                response_transaction_id: response.transaction_id,
-                response_tx_ref: response.tx_ref,
-                response_customer_email: response.customer.email,
-                response_customer_name: response.customer.name,
-                response_customer_phone_number: response.customer.phone_number,
-              };
-
-              const body = {
-                user_id: parseInt(data.user_id),
-                medication_id: parseInt(data.medication_id),
-                quantity: parseInt(data.quantity),
-                order_type: orderType,
-              };
-
-              console.log("responseBody:", responseBody);
-              console.log("body:", body);
+              console.log("This is body:", body);
 
               const requestOptions = {
                 method: "POST",
@@ -121,24 +158,26 @@ const CreateNewOrder = ({ show }) => {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${JSON.parse(token)}`,
                 },
-                body: JSON.stringify(body, responseBody),
+                body: JSON.stringify(body),
               };
 
-              const response = await fetch(
+              const paymentResponse = await fetch(
                 "/payments/payments",
                 requestOptions
               );
-              const responseData = await response.json();
+              const paymentData = await paymentResponse.json();
+              console.log("Payment response:", paymentData);
 
-              if (response.ok) {
+              if (paymentResponse.ok) {
                 reset();
                 window.location.reload();
               } else {
-                console.error("Error submitting order:", responseData.message);
+                throw new Error(paymentData.message); // Throw error for unsuccessful payment
               }
-              setServerResponse(responseData.message);
+              setServerResponse(paymentData.message);
             } catch (error) {
-              console.error("Error:", error);
+              console.error("Error submitting payment:", error.message);
+              setServerResponse("Error submitting payment: " + error.message); // Set error message in state
             }
           } else {
             setServerResponse("Payment was unsuccessful");
@@ -151,43 +190,6 @@ const CreateNewOrder = ({ show }) => {
           console.log("Payment closed by user");
         },
       });
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handlePayLater = async (data) => {
-    try {
-      const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-      const orderType = data.order_type === "Shipping";
-
-      const body = {
-        user_id: parseInt(data.user_id),
-        medication_id: parseInt(data.medication_id),
-        quantity: parseInt(data.quantity),
-        order_type: orderType,
-      };
-
-      const requestOptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-        body: JSON.stringify(body),
-      };
-
-      const response = await fetch("/orders/orders", requestOptions);
-      const responseData = await response.json();
-
-      if (response.ok) {
-        reset();
-        window.location.reload();
-      } else {
-        console.error("Error submitting order:", responseData.message);
-      }
-
-      setServerResponse(responseData.message);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -272,13 +274,13 @@ const CreateNewOrder = ({ show }) => {
               <Form.Label>Order Type</Form.Label>
               <Form.Control
                 as="select"
-                {...register("order_type", { required: true })}
+                {...register("shipping", { required: true })}
               >
                 <option value="">Select Order Type</option>
                 <option value="Shipping">Shipping</option>
                 <option value="Pickup">Pickup</option>
               </Form.Control>
-              {errors.order_type && (
+              {errors.shipping && (
                 <p className="text-danger small">Order Type is required</p>
               )}
             </Form.Group>
