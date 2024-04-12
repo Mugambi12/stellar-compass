@@ -62,35 +62,19 @@ class Order(db.Model, BaseMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    shipping = db.Column(db.String, nullable=False, default='Shipping')  # Shipping or Pickup
+    shipping = db.Column(db.String, nullable=False)  # Shipping or Pickup
     total_price = db.Column(db.Float, nullable=False)
-    payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     status = db.Column(db.String(20), nullable=False, default='Approved')  # Approved, Completed, Cancelled
+    payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     sold = db.Column(db.Boolean, nullable=False, default=False)
 
-    sale_invoices = relationship('SaleInvoice', backref='customer_order', lazy=True)
-
-
-class SaleInvoice(db.Model, BaseMixin):
-    __tablename__ = 'sale_invoices'
-
-    id = db.Column(db.Integer, primary_key=True)
-    customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    payment_method = db.Column(db.String(50), nullable=True)
-    transaction_id = db.Column(db.String(100), nullable=True)
-    active_sale = db.Column(db.Boolean, nullable=False, default=False)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Values: Pending, Dispatched, In Transit, Delivered, Completed, Cancelled
-    due_date = db.Column(db.Date, nullable=True)
-
-    payments = relationship('Payment', backref='sale_invoice', lazy=True)
+    payments = relationship('Payment', backref='customer_order', lazy=True)
 
 
 class Payment(db.Model, BaseMixin):
     __tablename__ = 'payments'
 
-    id = db.Column(db.Integer, primary_key=True)
-    invoice_id = db.Column(db.Integer, db.ForeignKey('sale_invoices.id'), nullable=False)
+    customer_order_id = db.Column(db.Integer, db.ForeignKey('customer_orders.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
