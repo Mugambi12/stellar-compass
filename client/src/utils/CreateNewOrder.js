@@ -1,7 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Form, Row, Col, Button, Alert } from "react-bootstrap";
+import { Form, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+
+const SelectField = ({ label, register, options, name, errors }) => (
+  <Form.Group>
+    <Form.Label>{label}</Form.Label>
+    <Form.Control as="select" {...register(name, { required: true })}>
+      <option value="">Select {label}</option>
+      {options.map((option) => (
+        <option key={option.id} value={option.id}>
+          {option.name || option.username}
+        </option>
+      ))}
+    </Form.Control>
+    {errors[name] && <p className="text-danger small">{label} is required</p>}
+  </Form.Group>
+);
+
+const TextField = ({ label, register, name, errors, placeholder }) => (
+  <Form.Group>
+    <Form.Label>{label}</Form.Label>
+    <Form.Control
+      type="text"
+      placeholder={placeholder}
+      {...register(name, { required: true })}
+    />
+    {errors[name] && <p className="text-danger small">{label} is required</p>}
+  </Form.Group>
+);
 
 const CreateNewOrder = ({ show }) => {
   const {
@@ -10,17 +37,26 @@ const CreateNewOrder = ({ show }) => {
     reset,
     formState: { errors },
   } = useForm();
-  const [medicines, setMedicines] = useState([]);
   const [users, setUsers] = useState([]);
+  const [medicines, setMedicines] = useState([]);
   const [serverResponse, setServerResponse] = useState(null);
-
-  useEffect(() => {
-    fetchMedicines();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchUsers();
+    fetchMedicines();
+    setIsLoading(false);
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/users/users");
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   const fetchMedicines = async () => {
     try {
@@ -32,13 +68,51 @@ const CreateNewOrder = ({ show }) => {
     }
   };
 
-  const fetchUsers = async () => {
+  const handleDeferredPayment = async (data) => {
     try {
-      const response = await fetch("/users/users");
-      const data = await response.json();
-      setUsers(data);
+      const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+
+      const medicationResponse = await fetch(
+        `/medicines/medications/${data.medication_id}`
+      );
+      const medicationData = await medicationResponse.json();
+      const price = medicationData.price;
+
+      const total_price = price * data.quantity;
+
+      const body = {
+        user_id: data.user_id,
+        medication_id: data.medication_id,
+        quantity: data.quantity,
+        shipping: data.shipping,
+        total_price: total_price,
+      };
+
+      console.log("body", body);
+
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+        body: JSON.stringify(body),
+      };
+
+      const response = await fetch("/orders/orders", requestOptions);
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setServerResponse(responseData.message);
+        //reset();
+        //window.location.reload();
+      } else {
+        setServerResponse(responseData.message);
+        throw new Error(responseData.message || "Failed to create order");
+      }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error creating order:", error);
+      setServerResponse(error.message);
     }
   };
 
@@ -62,16 +136,48 @@ const CreateNewOrder = ({ show }) => {
 
   const handleFlutterPayment = useFlutterwave(config);
 
-  const handlePayLater = async (data) => {
+  const processDeferredPayment = async (response, data) => {
     try {
       const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
-      const orderType = data.shipping === "Shipping";
+
+      const medicationResponse = await fetch(
+        `/medicines/medications/${data.medication_id}`
+      );
+      const medicationData = await medicationResponse.json();
+      const price = medicationData.price;
+
+      const total_price = price * data.quantity;
+
+      const response_status = response.status;
+      const response_amount = response.amount;
+      const response_charge_response_code = response.charge_response_code;
+      const response_charge_response_message = response.charge_response_message;
+      const response_charged_amount = response.charged_amount;
+      const response_currency = response.currency;
+      const response_flw_ref = response.flw_ref;
+      const response_transaction_id = response.transaction_id;
+      const response_tx_ref = response.tx_ref;
+      const response_customer_email = response.customer.email;
+      const response_customer_name = response.customer.name;
+      const response_customer_phone_number = response.customer.phone_number;
 
       const body = {
-        user_id: parseInt(data.user_id),
-        medication_id: parseInt(data.medication_id),
-        quantity: parseInt(data.quantity),
-        shipping: orderType,
+        amount: total_price,
+        payment_method: "flutterwave",
+        transaction_id: response.transaction_id,
+        status: "Paid",
+        response_status: response_status,
+        response_amount: response_amount,
+        response_charge_response_code: response_charge_response_code,
+        response_charge_response_message: response_charge_response_message,
+        response_charged_amount: response_charged_amount,
+        response_currency: response_currency,
+        response_flw_ref: response_flw_ref,
+        response_transaction_id: response_transaction_id,
+        response_tx_ref: response_tx_ref,
+        response_customer_email: response_customer_email,
+        response_customer_name: response_customer_name,
+        response_customer_phone_number: response_customer_phone_number,
       };
 
       const requestOptions = {
@@ -83,117 +189,68 @@ const CreateNewOrder = ({ show }) => {
         body: JSON.stringify(body),
       };
 
-      const response = await fetch("/orders/orders", requestOptions);
-      const responseData = await response.json();
+      const paymentResponse = await fetch("/payments/payments", requestOptions);
+      const paymentData = await paymentResponse.json();
 
-      if (response.ok) {
-        reset();
-        window.location.reload();
+      if (paymentResponse.ok) {
+        setServerResponse(paymentData.message);
       } else {
-        throw new Error(responseData.message); // Throw error for unsuccessful response
+        setServerResponse(paymentData.message);
+        throw new Error(paymentData.message || "Failed to create payment");
       }
+
+      console.log("Payment response", paymentData);
     } catch (error) {
-      console.error("Error submitting order:", error.message);
-      setServerResponse("Error submitting order: " + error.message); // Set error message in state
+      console.error("Error creating payment:", error);
+      setServerResponse(error.message);
     }
   };
 
-  const handlePayNow = async (data) => {
+  const handleImmediatePayment = async (data) => {
     try {
-      for (let user of users) {
-        if (user.id == data.user_id) {
-          console.log("username:", user.username);
-          config.customer.email = user.email;
-          config.customer.phone_number = user.contact_info;
-          config.customer.name = user.username;
-          break;
-        }
-      }
+      const selectedUser = users.find((user) => user.id == data.user_id);
+      const selectedMedicine = medicines.find(
+        (medicine) => medicine.id == data.medication_id
+      );
 
-      for (let medicine of medicines) {
-        if (medicine.id == data.medication_id) {
-          console.log("medicine price:", medicine.price);
-          config.amount = medicine.price * data.quantity;
-          break;
-        }
-      }
+      config.customer.email = selectedUser.email;
+      config.customer.phone_number = selectedUser.contact_info;
+      config.customer.name = selectedUser.username;
+      config.amount = selectedMedicine.price * data.quantity;
 
       handleFlutterPayment({
         callback: async (response) => {
           closePaymentModal();
 
-          const orderType = data.shipping === "Shipping";
-
-          const body = {
-            user_id: parseInt(data.user_id),
-            medication_id: parseInt(data.medication_id),
-            quantity: parseInt(data.quantity),
-            shipping: orderType,
-
-            response_status: response.status,
-            response_amount: response.amount,
-            response_code: response.charge_response_code,
-            response_message: response.charge_response_message,
-            response_charged_amount: response.charged_amount,
-            response_currency: response.currency,
-            response_flw_ref: response.flw_ref,
-            response_transaction_id: response.transaction_id,
-            response_tx_ref: response.tx_ref,
-            response_customer_email: response.customer.email,
-            response_customer_name: response.customer.name,
-            response_customer_phone_number: response.customer.phone_number,
-          };
+          console.log("Payment response", response);
 
           if (response.status === "successful") {
-            await handlePayLater(data);
-            console.log("Payment was successful");
             try {
-              const token = localStorage.getItem("REACT_TOKEN_AUTH_KEY");
+              await processDeferredPayment(response, data);
+              await handleDeferredPayment(data);
 
-              console.log("This is body:", body);
-
-              const requestOptions = {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${JSON.parse(token)}`,
-                },
-                body: JSON.stringify(body),
-              };
-
-              const paymentResponse = await fetch(
-                "/payments/payments",
-                requestOptions
-              );
-              const paymentData = await paymentResponse.json();
-              console.log("Payment response:", paymentData);
-
-              if (paymentResponse.ok) {
-                reset();
-                window.location.reload();
-              } else {
-                throw new Error(paymentData.message); // Throw error for unsuccessful payment
-              }
-              setServerResponse(paymentData.message);
+              console.log("Payment was successful");
             } catch (error) {
-              console.error("Error submitting payment:", error.message);
-              setServerResponse("Error submitting payment: " + error.message); // Set error message in state
+              console.error("Error:", error);
             }
           } else {
-            setServerResponse("Payment was unsuccessful");
-            console.log("Payment was unsuccessful");
-            window.location.href = "/orders";
+            console.log("Payment was not successful");
           }
-        },
-        onClose: () => {
-          // Handle modal closure if needed
-          console.log("Payment closed by user");
         },
       });
     } catch (error) {
       console.error("Error:", error);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-auto">
+        <Spinner animation="border" variant="info" />{" "}
+        <span className="ms-3"> Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: show ? "block" : "none" }}>
@@ -210,80 +267,46 @@ const CreateNewOrder = ({ show }) => {
       <Form>
         <Row>
           <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>User</Form.Label>
-              <Form.Control
-                as="select"
-                {...register("user_id", { required: true })}
-              >
-                <option value="">Select User</option>
-                {users
-                  .slice()
-                  .sort((a, b) => a.username.localeCompare(b.username))
-                  .map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.username}
-                    </option>
-                  ))}
-              </Form.Control>
-              {errors.user_id && (
-                <p className="text-danger small">User is required</p>
-              )}
-            </Form.Group>
+            <SelectField
+              label="User"
+              register={register}
+              options={users}
+              name="user_id"
+              errors={errors}
+            />
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Medicine</Form.Label>
-              <Form.Control
-                as="select"
-                {...register("medication_id", { required: true })}
-              >
-                <option value="">Select Medicine</option>
-                {medicines
-                  .slice()
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((medicine) => (
-                    <option key={medicine.id} value={medicine.id}>
-                      {medicine.name}
-                    </option>
-                  ))}
-              </Form.Control>
-              {errors.medication_id && (
-                <p className="text-danger small">Medicine is required</p>
-              )}
-            </Form.Group>
+            <SelectField
+              label="Medicine"
+              register={register}
+              options={medicines}
+              name="medication_id"
+              errors={errors}
+            />
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Quantity</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Quantity"
-                {...register("quantity", { required: true })}
-              />
-              {errors.quantity && (
-                <p className="text-danger small">Quantity is required</p>
-              )}
-            </Form.Group>
+            <TextField
+              label="Quantity"
+              register={register}
+              name="quantity"
+              errors={errors}
+              placeholder="Enter Quantity"
+            />
           </Col>
 
           <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Order Type</Form.Label>
-              <Form.Control
-                as="select"
-                {...register("shipping", { required: true })}
-              >
-                <option value="">Select Order Type</option>
-                <option value="Shipping">Shipping</option>
-                <option value="Pickup">Pickup</option>
-              </Form.Control>
-              {errors.shipping && (
-                <p className="text-danger small">Order Type is required</p>
-              )}
-            </Form.Group>
+            <SelectField
+              label="Order Type"
+              register={register}
+              options={[
+                { id: 1, name: "Shipping" },
+                { id: 2, name: "Pickup" },
+              ]}
+              name="shipping"
+              errors={errors}
+            />
           </Col>
         </Row>
 
@@ -293,7 +316,7 @@ const CreateNewOrder = ({ show }) => {
               variant="primary"
               block
               className="w-100"
-              onClick={handleSubmit(handlePayNow)}
+              onClick={handleSubmit(handleImmediatePayment)}
             >
               Pay Now
             </Button>
@@ -304,7 +327,7 @@ const CreateNewOrder = ({ show }) => {
               variant="success"
               block
               className="w-100"
-              onClick={handleSubmit(handlePayLater)}
+              onClick={handleSubmit(handleDeferredPayment)}
             >
               Pay Later
             </Button>
