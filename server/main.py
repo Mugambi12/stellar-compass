@@ -10,8 +10,8 @@ from views.auth import auth_ns
 from views.users import user_ns
 from views.medications import medicine_ns
 from views.order import order_ns
-from views.sale_invoices import sale_invoice_ns
 from views.payments import payment_ns
+from views.sale_invoices import sale_invoice_ns
 from flask_cors import CORS
 
 
@@ -30,8 +30,8 @@ def create_app(config):
     api.add_namespace(user_ns)
     api.add_namespace(medicine_ns)
     api.add_namespace(order_ns)
-    api.add_namespace(sale_invoice_ns)
     api.add_namespace(payment_ns)
+    api.add_namespace(sale_invoice_ns)
 
     @app.shell_context_processor
     def make_shell_context():
@@ -40,7 +40,6 @@ def create_app(config):
             'User': User,
             'Medication': Medication,
             'Order': Order,
-            'SaleInvoice': SaleInvoice,
             'Payment': Payment
         }
 
