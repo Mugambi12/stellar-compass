@@ -1,13 +1,12 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
-from models import Payment
-from exts import db
 from flask_jwt_extended import jwt_required
+from models import Payment
 
-# Initialize Flask-RESTx Namespace for Payments
+
 payment_ns = Namespace('payments', description='Payment Operations')
 
-# Model for Payment Serializer
+
 payment_model = payment_ns.model(
     'Payment', {
         'invoice_id': fields.Integer,
@@ -32,7 +31,6 @@ payment_model = payment_ns.model(
     }
 )
 
-# Resource for handling payments
 @payment_ns.route('/payments')
 class PaymentResource(Resource):
 
@@ -46,20 +44,14 @@ class PaymentResource(Resource):
     @jwt_required()
     def post(self):
         """Create a new payment"""
-        try:
-            data = request.json
-            new_payment = Payment(**data)
-            db.session.add(new_payment)
-            db.session.commit()
-            return jsonify({'message': 'Payment created successfully'}), 201
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        data = request.json
+        new_payment = Payment(**data)
+        new_payment.save()
+
+        return jsonify({"message": "Payment created successfully"})
 
 
 
-
-# Resource for handling individual payments
 @payment_ns.route('/payments/<int:id>')
 class PaymentDetailResource(Resource):
 
@@ -73,23 +65,17 @@ class PaymentDetailResource(Resource):
     @jwt_required()
     def put(self, id):
         """Update a payment by id"""
-        try:
-            data = request.get_json()
-            payment_to_update = Payment.query.get_or_404(id)
-            payment_to_update.update(**data)
-            return jsonify({'message': 'Payment updated successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        data = request.get_json()
+        payment_to_update = Payment.query.get_or_404(id)
+        payment_to_update.update(**data)
+
+        return jsonify({'message': 'Payment updated successfully'})
 
     @jwt_required()
     def delete(self, id):
         """Delete a payment by id"""
-        try:
-            payment_to_delete = Payment.query.get_or_404(id)
-            payment_to_delete.delete()
-            return jsonify({'message': 'Payment deleted successfully'})
-        except Exception as e:
-            db.session.rollback()
-            abort(500, message=str(e))
+        payment_to_delete = Payment.query.get_or_404(id)
+        payment_to_delete.delete()
+
+        return jsonify({'message': 'Payment deleted successfully'})
 
