@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
-from models import Order, Medication, SaleInvoice, Payment
+from models import Payment
 from exts import db
 from flask_jwt_extended import jwt_required
 
@@ -47,13 +47,17 @@ class PaymentResource(Resource):
     def post(self):
         """Create a new payment"""
         try:
-            data = request.get_json()
+            data = request.json
             new_payment = Payment(**data)
-            new_payment.save()
-            return jsonify({'message': 'Payment created successfully'})
+            db.session.add(new_payment)
+            db.session.commit()
+            return jsonify({'message': 'Payment created successfully'}), 201
         except Exception as e:
             db.session.rollback()
             abort(500, message=str(e))
+
+
+
 
 # Resource for handling individual payments
 @payment_ns.route('/payments/<int:id>')

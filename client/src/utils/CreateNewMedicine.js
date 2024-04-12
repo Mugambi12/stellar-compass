@@ -77,7 +77,7 @@ const CreateNewMedicine = ({ show }) => {
         </Alert>
       )}
 
-      <Form onSubmit={handleSubmit(submitForm)}>
+      <Form>
         <Row>
           <Col md={6} className="mb-3">
             <Form.Group>
@@ -177,7 +177,12 @@ const CreateNewMedicine = ({ show }) => {
             </Form.Group>
           </Col>
         </Row>
-        <Button variant="primary" type="submit">
+
+        <Button
+          variant="primary"
+          type="submit"
+          onClick={handleSubmit(submitForm)}
+        >
           Submit
         </Button>
       </Form>
