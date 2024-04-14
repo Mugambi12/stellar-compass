@@ -148,37 +148,27 @@ const CreateNewOrder = ({ show }) => {
 
       const total_price = price * data.quantity;
 
-      const response_status = response.status;
-      const response_amount = response.amount;
-      const response_charge_response_code = response.charge_response_code;
-      const response_charge_response_message = response.charge_response_message;
-      const response_charged_amount = response.charged_amount;
-      const response_currency = response.currency;
-      const response_flw_ref = response.flw_ref;
-      const response_transaction_id = response.transaction_id;
-      const response_tx_ref = response.tx_ref;
-      const response_customer_email = response.customer.email;
-      const response_customer_name = response.customer.name;
-      const response_customer_phone_number = response.customer.phone_number;
-
       const body = {
         amount: total_price,
         payment_method: "flutterwave",
         transaction_id: response.transaction_id,
         status: "Paid",
-        response_status: response_status,
-        response_amount: response_amount,
-        response_charge_response_code: response_charge_response_code,
-        response_charge_response_message: response_charge_response_message,
-        response_charged_amount: response_charged_amount,
-        response_currency: response_currency,
-        response_flw_ref: response_flw_ref,
-        response_transaction_id: response_transaction_id,
-        response_tx_ref: response_tx_ref,
-        response_customer_email: response_customer_email,
-        response_customer_name: response_customer_name,
-        response_customer_phone_number: response_customer_phone_number,
+        response_status: response.status,
+        response_amount: response.amount,
+        response_charge_response_code: response.charge_response_code,
+        response_charge_response_message: response.charge_response_message,
+        response_charged_amount: response.charged_amount,
+        response_currency: response.currency,
+        response_flw_ref: response.flw_ref,
+        response_transaction_id: response.transaction_id,
+        response_tx_ref: response.tx_ref,
+        response_customer_email: response.customer_email,
+        response_customer_name: response.customer_name,
+        response_customer_phone_number: response.customer_phone_number,
       };
+
+      console.log("body", body);
+      console.log("response", response);
 
       const requestOptions = {
         method: "POST",
@@ -313,7 +303,7 @@ const CreateNewOrder = ({ show }) => {
         <Row className="justify-content-around">
           <Col xs={6} md={4} className="mb-3">
             <Button
-              variant="primary"
+              variant="success"
               block
               className="w-100"
               onClick={handleSubmit(handleImmediatePayment)}
@@ -324,7 +314,7 @@ const CreateNewOrder = ({ show }) => {
 
           <Col xs={6} md={4}>
             <Button
-              variant="success"
+              variant="primary"
               block
               className="w-100"
               onClick={handleSubmit(handleDeferredPayment)}
