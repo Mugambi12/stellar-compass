@@ -64,6 +64,7 @@ const Invoices = () => {
         <thead className="table-primary">
           <tr>
             <th>#</th>
+            <th>Order ID</th>
             <th>Order Date</th>
             <th>User Name</th>
             <th>Email</th>
@@ -90,6 +91,7 @@ const Invoices = () => {
           {payments.reverse().map((payment, index) => (
             <tr key={payment.id}>
               <td>{index + 1}</td>
+              <td>{payment.order_id}</td>
               <td>{new Date(payment.created_at).toLocaleDateString()}</td>
               <td>{payment.response_customer_name}</td>
               <td>{payment.response_customer_email}</td>
