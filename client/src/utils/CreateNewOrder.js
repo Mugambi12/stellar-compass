@@ -149,6 +149,7 @@ const CreateNewOrder = ({ show }) => {
       const total_price = price * data.quantity;
 
       const body = {
+        customer_order_id: data.user_id,
         amount: total_price,
         payment_method: "flutterwave",
         transaction_id: response.transaction_id,
@@ -162,9 +163,9 @@ const CreateNewOrder = ({ show }) => {
         response_flw_ref: response.flw_ref,
         response_transaction_id: response.transaction_id,
         response_tx_ref: response.tx_ref,
-        response_customer_email: response.customer_email,
-        response_customer_name: response.customer_name,
-        response_customer_phone_number: response.customer_phone_number,
+        response_customer_email: response.customer.email,
+        response_customer_name: response.customer.name,
+        response_customer_phone_number: response.customer.phone_number,
       };
 
       console.log("body", body);
