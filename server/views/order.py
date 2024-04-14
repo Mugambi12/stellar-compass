@@ -7,6 +7,7 @@ order_ns = Namespace('orders', description='Order Operations')
 
 order_model = order_ns.model(
     'Order', {
+        'id': fields.Integer,
         'user_id': fields.Integer,
         'medication_id': fields.Integer,
         'quantity': fields.Integer,
