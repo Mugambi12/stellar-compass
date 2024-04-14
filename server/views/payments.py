@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
 from flask_jwt_extended import jwt_required
-from models import Payment
+from models import Payment, Order
 
 
 payment_ns = Namespace('payments', description='Payment Operations')
@@ -47,7 +47,6 @@ class PaymentResource(Resource):
         data = request.json
         new_payment = Payment(**data)
         new_payment.save()
-
         return jsonify({"message": "Payment created successfully"})
 
 
