@@ -66,11 +66,23 @@ const Invoices = () => {
             <th>#</th>
             <th>Order Date</th>
             <th>User Name</th>
-            <th>Medicine Name</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Order Status</th>
-            <th>Payment</th>
+            <th>Email</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Payment Method</th>
+            <th>Transaction ID</th>
+            <th>Response Status</th>
+            <th>Response Amount</th>
+            <th>Response Charge Response Code</th>
+            <th>Response Charge Response Message</th>
+            <th>Response Charged Amount</th>
+            <th>Response Currency</th>
+            <th>Response FLW Ref</th>
+            <th>Response Transaction ID</th>
+            <th>Response TX Ref</th>
+            <th>Response Customer Email</th>
+            <th>Response Customer Name</th>
+            <th>Response Customer Phone Number</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -84,6 +96,19 @@ const Invoices = () => {
               <td>{payment.amount}</td>
               <td>{payment.status}</td>
               <td>{payment.payment_method}</td>
+              <td>{payment.transaction_id}</td>
+              <td>{payment.response_status}</td>
+              <td>{payment.response_amount}</td>
+              <td>{payment.response_charge_response_code}</td>
+              <td>{payment.response_charge_response_message}</td>
+              <td>{payment.response_charged_amount}</td>
+              <td>{payment.response_currency}</td>
+              <td>{payment.response_flw_ref}</td>
+              <td>{payment.response_transaction_id}</td>
+              <td>{payment.response_tx_ref}</td>
+              <td>{payment.response_customer_email}</td>
+              <td>{payment.response_customer_name}</td>
+              <td>{payment.response_customer_phone_number}</td>
               <td>
                 <CashOutline
                   className="me-1"
