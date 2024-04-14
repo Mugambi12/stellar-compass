@@ -39,12 +39,14 @@ const CreateNewOrder = ({ show }) => {
   } = useForm();
   const [users, setUsers] = useState([]);
   const [medicines, setMedicines] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [serverResponse, setServerResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchUsers();
     fetchMedicines();
+    fetchOrders();
     setIsLoading(false);
   }, []);
 
@@ -65,6 +67,16 @@ const CreateNewOrder = ({ show }) => {
       setMedicines(data);
     } catch (error) {
       console.error("Error fetching medicines:", error);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/orders/orders");
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -149,6 +161,7 @@ const CreateNewOrder = ({ show }) => {
       const total_price = price * data.quantity;
 
       const body = {
+        order_id: orders[orders.length - 1].id + 1,
         customer_order_id: data.user_id,
         amount: total_price,
         payment_method: "flutterwave",
@@ -168,8 +181,12 @@ const CreateNewOrder = ({ show }) => {
         response_customer_phone_number: response.customer.phone_number,
       };
 
-      console.log("body", body);
-      console.log("response", response);
+      console.log("data:", data);
+      console.log("body:", body);
+      console.log("response:", response);
+      console.log("Latest order:", orders[orders.length - 1]);
+      console.log("Latest order id:", orders[orders.length - 1].id);
+      console.log("Latest latest order id:", orders[orders.length - 1].id + 1);
 
       const requestOptions = {
         method: "POST",
