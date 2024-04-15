@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace, fields, abort
 from flask_jwt_extended import jwt_required
-from models import db, Order, Medication
+from models import db, Order, Medication, Payment
 
 order_ns = Namespace('orders', description='Order Operations')
 
@@ -89,3 +89,15 @@ class OrderResourceByID(Resource):
         order_to_delete = Order.query.get_or_404(id)
         order_to_delete.delete()
         return jsonify({"message": "Order deleted successfully"})
+
+#    def delete(self, id):
+#        """Delete an order by id"""
+#        order_to_delete = Order.query.get_or_404(id)
+#
+#        payments_to_delete = Payment.query.filter_by(customer_order_id=id).all()
+#        for payment in payments_to_delete:
+#            payment.delete()
+#
+#        order_to_delete.delete()
+#        return jsonify({"message": "Order and associated payments deleted successfully"})
+

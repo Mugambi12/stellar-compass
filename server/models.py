@@ -31,7 +31,7 @@ class User(db.Model, BaseMixin):
     name = db.Column(db.String(100), nullable=True)
     address = db.Column(db.Text, nullable=True)
     contact_info = db.Column(db.String(100), nullable=True)
-    role = db.Column(db.String(20), nullable=False, default='customer')  # Example: admin, customer
+    role = db.Column(db.String(20), nullable=False, default='customer')  # admin, customer
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
     orders = relationship('Order', backref='user', lazy=True)
@@ -78,7 +78,7 @@ class Payment(db.Model, BaseMixin):
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='Pending')  # Possible values: Paid, Pending, Refunded
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     response_status = db.Column(db.String(20), nullable=True)
     response_amount = db.Column(db.Float, nullable=True)
     response_charge_response_code = db.Column(db.String(20), nullable=True)
