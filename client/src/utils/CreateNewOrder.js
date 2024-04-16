@@ -161,7 +161,7 @@ const CreateNewOrder = ({ show }) => {
       const total_price = price * data.quantity;
 
       const body = {
-        order_id: orders[orders.length - 1].id + 1,
+        //order_id: orders[orders.length - 1].id + 1,
         customer_order_id: data.user_id,
         amount: total_price,
         payment_method: "flutterwave",
