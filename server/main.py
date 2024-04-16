@@ -14,6 +14,9 @@ from views.payments import payment_ns
 from views.sale_invoices import sale_invoice_ns
 from flask_cors import CORS
 
+migrate = Migrate()
+jwt = JWTManager()
+#api = Api()
 
 def create_app(config):
     app = Flask(__name__)
@@ -22,8 +25,9 @@ def create_app(config):
     CORS(app)
 
     db.init_app(app)
-    migrate = Migrate(app, db)
-    JWTManager(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    #api.init_app(app, doc='/docs')
     api=Api(app, doc='/docs')
 
     api.add_namespace(auth_ns)
