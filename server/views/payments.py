@@ -9,7 +9,7 @@ payment_ns = Namespace('payments', description='Payment Operations')
 
 payment_model = payment_ns.model(
     'Payment', {
-        'invoice_id': fields.Integer,
+        'customer_order_id': fields.Integer,
         'amount': fields.Float,
         'payment_method': fields.String,
         'transaction_id': fields.String,
