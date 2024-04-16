@@ -58,15 +58,20 @@ class Medication(db.Model, BaseMixin):
 class Order(db.Model, BaseMixin):
     __tablename__ = 'customer_orders'
 
-    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    shipping = db.Column(db.String, nullable=False)  # Shipping or Pickup
-    total_price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='Approved')  # Approved, Completed, Cancelled
     payment_status = db.Column(db.String(20), nullable=False, default='Pending')  # Paid, Pending, Refunded
     sold = db.Column(db.Boolean, nullable=False, default=False)
+    shipping = db.Column(db.String, nullable=False)  # Shipping or Pickup
+    shipping_method = db.Column(db.String, nullable=True)
+    shipping_address = db.Column(db.String, nullable=True)
+    shipping_status = db.Column(db.String, nullable=True)
+    shipping_tracking_number = db.Column(db.String, nullable=True)
+    shipping_carrier = db.Column(db.String, nullable=True)
+    shipping_cost = db.Column(db.Float, nullable=True)
+    total_price = db.Column(db.Float, nullable=False)
 
     payments = relationship('Payment', backref='customer_order', lazy=True)
 
